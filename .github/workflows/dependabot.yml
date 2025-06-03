@@ -1,0 +1,170 @@
+# Configuration file for Dependabot
+#
+# This file configures Dependabot to automatically check for and update
+# dependencies in the project. It helps keep the project secure by
+# updating to newer versions of dependencies that fix security vulnerabilities.
+#
+# For more information about Dependabot configuration:
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+
+# Define update configurations for different package ecosystems
+updates:
+  # Configuration for Rust/Cargo dependencies
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      # Check for updates every Monday at 9:00 AM UTC
+      # This provides a regular cadence for dependency updates
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    
+    # Dependency update strategy
+    # "auto" means Dependabot will choose the appropriate update level
+    # based on semantic versioning and the package's compatibility
+    versioning-strategy: "auto"
+    
+    # Open pull requests for dependency updates
+    open-pull-requests-limit: 10
+    
+    # Assignees for dependency update PRs
+    # assignees:
+    #   - "maintainer-username"
+    
+    # Reviewers for dependency update PRs
+    # reviewers:
+    #   - "team-name"
+    #   - "reviewer-username"
+    
+    # Commit message configuration
+    commit-message:
+      # Prefix for commit messages
+      prefix: "cargo"
+      # Prefix for commit messages when updating dependencies
+      prefix-development: "cargo-dev"
+      # Include dependency name in commit message
+      include: "scope"
+    
+    # PR configuration
+    pull-request-branch-name:
+      # Branch naming strategy for dependency update PRs
+      separator: "/"
+    
+    # Dependency groups for related updates
+    # This groups related dependencies together in a single PR
+    groups:
+      # Group all async runtime related dependencies
+      async-runtime:
+        patterns:
+          - "tokio*"
+          - "futures*"
+          - "async-*"
+      
+      # Group all serialization related dependencies
+      serialization:
+        patterns:
+          - "serde*"
+          - "serde_json"
+          - "serde_yaml"
+          - "toml"
+      
+      # Group all HTTP/web related dependencies
+      http-web:
+        patterns:
+          - "reqwest"
+          - "hyper*"
+          - "http*"
+          - "url"
+      
+      # Group all database related dependencies
+      database:
+        patterns:
+          - "sqlx*"
+          - "diesel*"
+          - "sea-orm*"
+      
+      # Group all logging and tracing dependencies
+      logging:
+        patterns:
+          - "tracing*"
+          - "log"
+          - "env_logger"
+          - "slog*"
+      
+      # Group all testing related dependencies
+      testing:
+        patterns:
+          - "mockall*"
+          - "wiremock*"
+          - "assert_*"
+          - "proptest*"
+          - "quickcheck*"
+      
+      # Group all cryptography related dependencies
+      crypto:
+        patterns:
+          - "ring"
+          - "rustls*"
+          - "openssl*"
+          - "sha2"
+          - "rand*"
+      
+      # Group all development tools
+      dev-tools:
+        patterns:
+          - "cargo-*"
+          - "rustfmt*"
+          - "clippy*"
+    
+    # Ignore specific dependencies if needed
+    ignore:
+      # Example: ignore specific versions or updates
+      # - dependency-name: "example-crate"
+      #   versions: ["1.x", "2.x"]
+      # - dependency-name: "another-crate"
+      #   update-types: ["version-update:semver-major"]
+    
+    # Allow specific dependency types
+    allow:
+      # Allow all dependency types by default
+      - dependency-type: "all"
+    
+    # Rebase strategy for pull requests
+    rebase-strategy: "auto"
+    
+    # Target branch for pull requests
+    target-branch: "main"
+
+  # Configuration for GitHub Actions dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      # Check for GitHub Actions updates weekly on Sundays
+      interval: "weekly"
+      day: "sunday"
+      time: "09:00"
+      timezone: "UTC"
+    
+    # Limit the number of open pull requests
+    open-pull-requests-limit: 5
+    
+    # Commit message configuration for GitHub Actions
+    commit-message:
+      prefix: "github-actions"
+      include: "scope"
+    
+    # Group all GitHub Actions updates together
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    
+    # Allow all updates for GitHub Actions
+    allow:
+      - dependency-type: "all"
+    
+    # Target branch for GitHub Actions updates
+    target-branch: "main" 

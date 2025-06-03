@@ -1,0 +1,128 @@
+[package]
+name = "mcp_rust_examples"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "example_01_hello_world"
+path = "src/examples/example_01_hello_world.rs"
+
+[[bin]]
+name = "example_02_calculator"
+path = "src/examples/example_02_calculator.rs"
+
+[[bin]]
+name = "example_03_text_processor"
+path = "src/examples/example_03_text_processor.rs"
+
+[[bin]]
+name = "example_04_simple_client"
+path = "src/examples/example_04_simple_client.rs"
+
+[[bin]]
+name = "example_05_resource_provider"
+path = "src/examples/example_05_resource_provider.rs"
+
+[[bin]]
+name = "example_06_configurable_server"
+path = "src/examples/example_06_configurable_server.rs"
+
+[[bin]]
+name = "example_07_file_operations"
+path = "src/examples/example_07_file_operations.rs"
+
+[[bin]]
+name = "example_08_http_client"
+path = "src/examples/example_08_http_client.rs"
+
+[[bin]]
+name = "example_09_database"
+path = "src/examples/example_09_database.rs"
+
+[[bin]]
+name = "example_10_streaming"
+path = "src/examples/example_10_streaming.rs"
+
+[[bin]]
+name = "example_11_monitoring"
+path = "src/examples/example_11_monitoring.rs"
+
+[[bin]]
+name = "example_12_task_queue"
+path = "src/examples/example_12_task_queue.rs"
+
+[[bin]]
+name = "example_13_auth_service"
+path = "src/examples/example_13_auth_service.rs"
+
+[[bin]]
+name = "example_14_notification_service"
+path = "src/examples/example_14_notification_service.rs"
+
+[[bin]]
+name = "example_15_data_pipeline"
+path = "src/examples/example_15_data_pipeline.rs"
+
+[[bin]]
+name = "example_16_search_service"
+path = "src/examples/example_16_search_service.rs"
+
+[[bin]]
+name = "example_17_blockchain_integration"
+path = "src/examples/example_17_blockchain_integration.rs"
+
+[[bin]]
+name = "example_18_ml_model_server"
+path = "src/examples/example_18_ml_model_server.rs"
+
+[[bin]]
+name = "example_19_microservice_gateway"
+path = "src/examples/example_19_microservice_gateway.rs"
+
+[[bin]]
+name = "example_20_enterprise_server"
+path = "src/examples/example_20_enterprise_server.rs"
+
+[dependencies]
+# Core MCP SDK - using development branch for latest features
+rmcp = { git = "https://github.com/modelcontextprotocol/rust-sdk", branch = "main", features = [
+    "server",
+    "client",
+] }
+
+# Essential async runtime
+tokio = { version = "1.0", features = ["full"] }
+
+# JSON serialization/deserialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling utilities
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# HTTP client for example 8
+reqwest = { version = "0.11", features = ["json"] }
+
+# Database for example 9
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "sqlite"] }
+
+# Time and UUID utilities
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
+
+# Random number generation for streaming example
+rand = "0.8"
+
+# Additional utilities
+futures = "0.3"
+
+# Cryptographic hashing for authentication example
+sha2 = "0.10"
+
+[dev-dependencies]
+tempfile = "3.0"

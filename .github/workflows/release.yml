@@ -1,0 +1,262 @@
+# Workflow: Release
+#
+# This workflow is triggered when a tag is pushed to the repository.
+# It builds binaries for multiple platforms, creates a GitHub release,
+# and uploads the built artifacts as release assets.
+
+name: Release
+
+# Trigger: Run when tags matching semantic versioning pattern are pushed
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Matches tags like v1.0.0, v2.1.3, etc.
+
+# Define environment variables for the release process
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+# Define the release jobs
+jobs:
+  # Job 1: Create the GitHub release
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      release_version: ${{ env.RELEASE_VERSION }}
+    
+    steps:
+    # Step 1: Check out the source code
+    - name: Checkout source code
+      uses: actions/checkout@v4
+    
+    # Step 2: Extract version from the git tag
+    # This removes the 'v' prefix from tags like 'v1.0.0' to get '1.0.0'
+    - name: Get release version
+      run: |
+        echo "RELEASE_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+        echo "Release version: ${GITHUB_REF#refs/tags/v}"
+    
+    # Step 3: Create the GitHub release
+    # This creates a draft release that will be published after artifacts are uploaded
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ env.RELEASE_VERSION }}
+        body: |
+          ## MCP Rust Examples Release ${{ env.RELEASE_VERSION }}
+          
+          This release contains compiled binaries for the MCP Rust Examples tutorial project.
+          
+          ### Features
+          - 20 comprehensive Rust examples demonstrating MCP (Model Context Protocol) usage
+          - Cross-platform binaries for Linux, macOS, and Windows
+          - Educational code with extensive documentation and comments
+          
+          ### Installation
+          1. Download the appropriate binary for your platform
+          2. Extract the archive
+          3. Run the desired example binary
+          
+          ### Examples Included
+          - Hello World and Calculator examples
+          - Text processing and HTTP client examples
+          - Database integration and streaming examples
+          - Authentication and notification services
+          - Data pipelines and search services
+          - Blockchain integration and ML model server
+          - Microservice gateway and enterprise server
+          
+          ### Usage
+          Each example can be run independently:
+          ```bash
+          ./example_01_hello_world
+          ./example_02_calculator
+          # ... and so on
+          ```
+          
+          For more information, see the [README.md](README.md) in the repository.
+        draft: false
+        prerelease: false
+
+  # Job 2: Build binaries for multiple platforms
+  build:
+    name: Build Release Binaries
+    needs: create-release
+    runs-on: ${{ matrix.os }}
+    
+    # Strategy matrix: build for multiple operating systems and architectures
+    strategy:
+      matrix:
+        include:
+          # Linux builds
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            archive_name: mcp-rust-examples-linux-x64
+            archive_extension: tar.gz
+          
+          # macOS builds
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            archive_name: mcp-rust-examples-macos-x64
+            archive_extension: tar.gz
+          
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            archive_name: mcp-rust-examples-macos-arm64
+            archive_extension: tar.gz
+          
+          # Windows builds
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            archive_name: mcp-rust-examples-windows-x64
+            archive_extension: zip
+    
+    steps:
+    # Step 1: Check out the source code
+    - name: Checkout source code
+      uses: actions/checkout@v4
+    
+    # Step 2: Install Rust toolchain with the target architecture
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: ${{ matrix.target }}
+    
+    # Step 3: Setup Rust caching for faster builds
+    - name: Setup Rust cache
+      uses: Swatinem/rust-cache@v2
+      with:
+        key: ${{ matrix.target }}
+    
+    # Step 4: Build all examples for the target platform
+    # We build all binary examples defined in Cargo.toml for the specific target
+    - name: Build release binaries
+      run: cargo build --release --target ${{ matrix.target }} --all-targets
+    
+    # Step 5: Prepare binaries for packaging (Unix systems)
+    - name: Prepare binaries (Unix)
+      if: matrix.os != 'windows-latest'
+      run: |
+        # Create a directory to hold all the binaries
+        mkdir -p release-binaries
+        
+        # Copy all built binaries to the release directory
+        # The binaries are located in target/{target}/release/
+        for binary in target/${{ matrix.target }}/release/example_*; do
+          if [ -f "$binary" ] && [ -x "$binary" ]; then
+            cp "$binary" release-binaries/
+          fi
+        done
+        
+        # Also copy the main binary if it exists
+        if [ -f "target/${{ matrix.target }}/release/mcp_rust_examples" ]; then
+          cp "target/${{ matrix.target }}/release/mcp_rust_examples" release-binaries/
+        fi
+        
+        # List the contents to verify
+        ls -la release-binaries/
+    
+    # Step 6: Prepare binaries for packaging (Windows)
+    - name: Prepare binaries (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        # Create a directory to hold all the binaries
+        New-Item -ItemType Directory -Path release-binaries -Force
+        
+        # Copy all built binaries to the release directory
+        # Windows binaries have .exe extension
+        Get-ChildItem -Path "target\${{ matrix.target }}\release" -Name "example_*.exe" | ForEach-Object {
+          Copy-Item -Path "target\${{ matrix.target }}\release\$_" -Destination "release-binaries\"
+        }
+        
+        # Also copy the main binary if it exists
+        if (Test-Path "target\${{ matrix.target }}\release\mcp_rust_examples.exe") {
+          Copy-Item -Path "target\${{ matrix.target }}\release\mcp_rust_examples.exe" -Destination "release-binaries\"
+        }
+        
+        # List the contents to verify
+        Get-ChildItem -Path release-binaries
+      shell: powershell
+    
+    # Step 7: Create archive (tar.gz for Unix, zip for Windows)
+    - name: Create archive (Unix)
+      if: matrix.archive_extension == 'tar.gz'
+      run: |
+        cd release-binaries
+        tar -czf ../${{ matrix.archive_name }}.${{ matrix.archive_extension }} *
+        cd ..
+        ls -la ${{ matrix.archive_name }}.${{ matrix.archive_extension }}
+    
+    - name: Create archive (Windows)
+      if: matrix.archive_extension == 'zip'
+      run: |
+        Compress-Archive -Path "release-binaries\*" -DestinationPath "${{ matrix.archive_name }}.${{ matrix.archive_extension }}"
+        Get-Item "${{ matrix.archive_name }}.${{ matrix.archive_extension }}"
+      shell: powershell
+    
+    # Step 8: Upload the archive as a release asset
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: ./${{ matrix.archive_name }}.${{ matrix.archive_extension }}
+        asset_name: ${{ matrix.archive_name }}.${{ matrix.archive_extension }}
+        asset_content_type: ${{ matrix.archive_extension == 'zip' && 'application/zip' || 'application/gzip' }}
+
+  # Job 3: Generate and upload checksums for verification
+  checksums:
+    name: Generate Checksums
+    needs: [create-release, build]
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Step 1: Check out the source code
+    - name: Checkout source code
+      uses: actions/checkout@v4
+    
+    # Step 2: Download all release assets
+    - name: Download release assets
+      run: |
+        # Create directory for downloaded assets
+        mkdir -p assets
+        
+        # Get the release ID and download all assets
+        release_id=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ github.ref_name }}" | \
+          jq -r '.id')
+        
+        # Download each asset
+        curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/releases/$release_id/assets" | \
+          jq -r '.[].browser_download_url' | \
+          while read url; do
+            wget -P assets/ "$url"
+          done
+    
+    # Step 3: Generate SHA256 checksums
+    - name: Generate checksums
+      run: |
+        cd assets
+        sha256sum * > ../checksums.txt
+        cd ..
+        cat checksums.txt
+    
+    # Step 4: Upload checksums file
+    - name: Upload checksums
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: ./checksums.txt
+        asset_name: checksums.txt
+        asset_content_type: text/plain 

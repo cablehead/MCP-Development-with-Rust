@@ -1,0 +1,237 @@
+# Workflow: Documentation Build and Deploy
+#
+# This workflow builds and validates Rust documentation, and optionally
+# deploys it to GitHub Pages. It ensures that documentation stays up-to-date
+# and accessible to users and contributors.
+
+name: Documentation
+
+# Trigger conditions
+on:
+  # Run on pushes to main branch to keep docs updated
+  push:
+    branches: [ "main", "master" ]
+  
+  # Run on pull requests to validate documentation changes
+  pull_request:
+    branches: [ "main", "master" ]
+  
+  # Allow manual triggering for documentation updates
+  workflow_dispatch:
+
+# Set permissions for GitHub Pages deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+# Define environment variables
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+# Define the documentation jobs
+jobs:
+  # Job 1: Build and validate documentation
+  build-docs:
+    name: Build Documentation
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Step 1: Check out the source code
+    - name: Checkout source code
+      uses: actions/checkout@v4
+    
+    # Step 2: Install Rust toolchain
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+    
+    # Step 3: Setup Rust caching
+    - name: Setup Rust cache
+      uses: Swatinem/rust-cache@v2
+    
+    # Step 4: Build documentation for all crates
+    # This generates HTML documentation from Rust doc comments
+    - name: Build Rust documentation
+      run: |
+        echo "Building Rust documentation..."
+        cargo doc --all --no-deps --document-private-items
+      env:
+        # Treat documentation warnings as errors to ensure quality
+        RUSTDOCFLAGS: "-D warnings"
+    
+    # Step 5: Create a simple documentation index
+    - name: Create documentation index
+      run: |
+        echo "Creating documentation index..."
+        cat > target/doc/index.html << 'EOF'
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>MCP Rust Examples Documentation</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 40px; }
+                h1 { color: #333; }
+                .card { background: #f5f5f5; padding: 20px; margin: 10px 0; border-radius: 5px; }
+            </style>
+        </head>
+        <body>
+            <h1>🦀 MCP Rust Examples Documentation</h1>
+            <div class="card">
+                <h3>API Documentation</h3>
+                <p><a href="mcp_rust_examples/index.html">Main Crate Documentation</a></p>
+            </div>
+            <div class="card">
+                <h3>Getting Started</h3>
+                <pre>cargo build --all-targets</pre>
+                <pre>cargo run --bin example_01_hello_world</pre>
+            </div>
+        </body>
+        </html>
+        EOF
+    
+    # Step 6: Verify documentation structure
+    - name: Verify documentation
+      run: |
+        echo "Verifying documentation structure..."
+        
+        # Check if main documentation was generated
+        if [ ! -d "target/doc" ]; then
+          echo "❌ Documentation directory not found!"
+          exit 1
+        fi
+        
+        # List generated documentation
+        echo "Generated documentation:"
+        find target/doc -name "*.html" | head -10
+        
+        echo "✅ Documentation verification complete"
+    
+    # Step 7: Upload documentation artifacts
+    - name: Upload documentation artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: rust-documentation
+        path: target/doc/
+        retention-days: 30
+    
+    # Step 8: Setup Pages (only on main branch)
+    - name: Setup Pages
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      uses: actions/configure-pages@v4
+    
+    # Step 9: Upload to GitHub Pages
+    - name: Upload to GitHub Pages
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: target/doc/
+
+  # Job 2: Deploy to GitHub Pages (only on main branch)
+  deploy-pages:
+    name: Deploy to GitHub Pages
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    needs: build-docs
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+    # Step 1: Deploy to GitHub Pages
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+
+  # Job 3: Documentation quality checks
+  doc-quality:
+    name: Documentation Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Step 1: Check out the source code
+    - name: Checkout source code
+      uses: actions/checkout@v4
+    
+    # Step 2: Install Rust toolchain
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+    
+    # Step 3: Setup Rust caching
+    - name: Setup Rust cache
+      uses: Swatinem/rust-cache@v2
+    
+    # Step 4: Check documentation coverage
+    - name: Check documentation coverage
+      run: |
+        echo "Checking documentation coverage..."
+        
+        # Generate documentation with coverage information
+        cargo doc --all --no-deps --document-private-items 2>&1 | tee doc-output.log
+        
+        # Check for missing documentation warnings
+        if grep -i "missing documentation" doc-output.log; then
+          echo "⚠️ Found missing documentation warnings"
+        else
+          echo "✅ No missing documentation warnings"
+        fi
+        
+        # Check for broken intra-doc links
+        if grep -i "broken.*link" doc-output.log; then
+          echo "❌ Found broken documentation links"
+          exit 1
+        else
+          echo "✅ No broken documentation links"
+        fi
+    
+    # Step 5: Validate README files
+    - name: Validate README files
+      run: |
+        echo "Validating README files..."
+        
+        # Check if main README exists and has content
+        if [ -f "README.md" ] && [ -s "README.md" ]; then
+          echo "✅ Main README.md exists and has content"
+        else
+          echo "❌ README.md is missing or empty"
+          exit 1
+        fi
+    
+    # Step 6: Generate documentation report
+    - name: Generate documentation report
+      run: |
+        echo "# Documentation Quality Report" > doc-report.md
+        echo "" >> doc-report.md
+        echo "Generated on: $(date)" >> doc-report.md
+        echo "Repository: ${{ github.repository }}" >> doc-report.md
+        echo "Commit: ${{ github.sha }}" >> doc-report.md
+        echo "" >> doc-report.md
+        
+        echo "## Documentation Build Status" >> doc-report.md
+        if [ -d "target/doc" ]; then
+          echo "✅ Documentation built successfully" >> doc-report.md
+          
+          # Count documentation files
+          html_files=$(find target/doc -name "*.html" | wc -l)
+          echo "- Generated $html_files HTML files" >> doc-report.md
+        else
+          echo "❌ Documentation build failed" >> doc-report.md
+        fi
+        
+        echo "" >> doc-report.md
+        echo "---" >> doc-report.md
+        echo "*Report generated by GitHub Actions Documentation Workflow*" >> doc-report.md
+    
+    # Step 7: Upload documentation report
+    - name: Upload documentation report
+      uses: actions/upload-artifact@v4
+      with:
+        name: documentation-report
+        path: doc-report.md
+        retention-days: 90 

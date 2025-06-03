@@ -1,0 +1,359 @@
+# Workflow: Security Audit and Maintenance
+#
+# This workflow runs automated security checks on a schedule to ensure
+# the project remains secure over time. It checks for vulnerabilities
+# in dependencies, outdated packages, and potential security issues.
+
+name: Security Audit
+
+# Trigger conditions: run on schedule and manual trigger
+on:
+  # Run security audit every Monday at 9 AM UTC
+  schedule:
+    - cron: '0 9 * * 1'
+  
+  # Allow manual triggering from GitHub Actions UI
+  workflow_dispatch:
+  
+  # Also run on pushes to main branch for immediate security feedback
+  push:
+    branches: [ "main", "master" ]
+  
+  # Run on pull requests to catch security issues early
+  pull_request:
+    branches: [ "main", "master" ]
+
+# Define environment variables
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+# Define the security audit jobs
+jobs:
+  # Job 1: Comprehensive security audit
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Step 1: Check out the source code
+    - name: Checkout source code
+      uses: actions/checkout@v4
+    
+    # Step 2: Install Rust toolchain
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+    
+    # Step 3: Setup Rust caching
+    - name: Setup Rust cache
+      uses: Swatinem/rust-cache@v2
+    
+    # Step 4: Install cargo-audit for vulnerability scanning
+    - name: Install cargo-audit
+      run: cargo install cargo-audit --locked
+    
+    # Step 5: Run security audit
+    # This checks the Cargo.lock file against the RustSec Advisory Database
+    - name: Run cargo audit
+      run: |
+        echo "Running security audit..."
+        cargo audit --json > audit-results.json || true
+        
+        # Display human-readable results
+        echo "Security audit results:"
+        cargo audit
+        
+        # Check if any vulnerabilities were found
+        vulnerabilities=$(jq '.vulnerabilities | length' audit-results.json)
+        if [ "$vulnerabilities" -gt 0 ]; then
+          echo "⚠️ Found $vulnerabilities vulnerabilities!"
+          jq '.vulnerabilities[] | {id: .advisory.id, title: .advisory.title, severity: .advisory.severity}' audit-results.json
+          exit 1
+        else
+          echo "✅ No vulnerabilities found!"
+        fi
+    
+    # Step 6: Check for yanked crates
+    # Yanked crates are packages that have been withdrawn by their authors
+    - name: Check for yanked crates
+      run: |
+        echo "Checking for yanked crates..."
+        if cargo audit --deny yanked; then
+          echo "✅ No yanked crates found!"
+        else
+          echo "⚠️ Yanked crates detected!"
+          exit 1
+        fi
+    
+    # Step 7: Upload audit results as artifact
+    - name: Upload audit results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-audit-results
+        path: audit-results.json
+        retention-days: 30
+
+  # Job 2: Dependency review and analysis
+  dependency-analysis:
+    name: Dependency Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Step 1: Check out the source code
+    - name: Checkout source code
+      uses: actions/checkout@v4
+    
+    # Step 2: Install Rust toolchain
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+    
+    # Step 3: Setup Rust caching
+    - name: Setup Rust cache
+      uses: Swatinem/rust-cache@v2
+    
+    # Step 4: Install cargo-tree for dependency analysis
+    - name: Install cargo-tree
+      run: cargo install cargo-tree --locked
+    
+    # Step 5: Analyze dependency tree
+    # This shows the complete dependency graph to identify potential issues
+    - name: Analyze dependency tree
+      run: |
+        echo "Dependency tree analysis:"
+        cargo tree --format '{p} {l}' > dependency-tree.txt
+        
+        # Show top-level dependencies
+        echo "Direct dependencies:"
+        cargo tree --depth 1
+        
+        # Check for duplicate dependencies (can indicate version conflicts)
+        echo "Checking for duplicate dependencies:"
+        cargo tree --duplicates || echo "No duplicate dependencies found"
+        
+        # Show dependencies with known security advisories
+        echo "Dependencies with advisories:"
+        cargo tree --format '{p}' | sort | uniq | while read dep; do
+          if cargo audit --json | jq -e ".vulnerabilities[] | select(.package.name == \"$dep\")" > /dev/null 2>&1; then
+            echo "⚠️ $dep has security advisories"
+          fi
+        done
+    
+    # Step 6: Check for outdated dependencies
+    - name: Install cargo-outdated
+      run: cargo install cargo-outdated --locked
+    
+    - name: Check for outdated dependencies
+      run: |
+        echo "Checking for outdated dependencies..."
+        cargo outdated --root-deps-only || echo "All dependencies are up to date"
+    
+    # Step 7: Upload dependency analysis results
+    - name: Upload dependency analysis
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: dependency-analysis
+        path: dependency-tree.txt
+        retention-days: 30
+
+  # Job 3: License compliance check
+  license-check:
+    name: License Compliance
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Step 1: Check out the source code
+    - name: Checkout source code
+      uses: actions/checkout@v4
+    
+    # Step 2: Install Rust toolchain
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+    
+    # Step 3: Setup Rust caching
+    - name: Setup Rust cache
+      uses: Swatinem/rust-cache@v2
+    
+    # Step 4: Install cargo-license for license checking
+    - name: Install cargo-license
+      run: cargo install cargo-license --locked
+    
+    # Step 5: Check licenses of all dependencies
+    # This ensures we're compliant with dependency licenses
+    - name: Check dependency licenses
+      run: |
+        echo "Checking dependency licenses..."
+        cargo license --json > licenses.json
+        
+        # Display license summary
+        echo "License summary:"
+        cargo license
+        
+        # Check for potentially problematic licenses
+        echo "Checking for restrictive licenses..."
+        problematic_licenses=("GPL-3.0" "AGPL-3.0" "SSPL-1.0" "BSL-1.1")
+        
+        for license in "${problematic_licenses[@]}"; do
+          if jq -e ".[] | select(.license == \"$license\")" licenses.json > /dev/null; then
+            echo "⚠️ Found potentially restrictive license: $license"
+            jq ".[] | select(.license == \"$license\") | {name: .name, license: .license}" licenses.json
+          fi
+        done
+        
+        # Check for unknown licenses
+        if jq -e '.[] | select(.license == null or .license == "")' licenses.json > /dev/null; then
+          echo "⚠️ Found dependencies with unknown licenses:"
+          jq '.[] | select(.license == null or .license == "") | {name: .name, license: .license}' licenses.json
+        fi
+    
+    # Step 6: Upload license information
+    - name: Upload license information
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: license-information
+        path: licenses.json
+        retention-days: 90
+
+  # Job 4: Code quality and security linting
+  security-linting:
+    name: Security Linting
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Step 1: Check out the source code
+    - name: Checkout source code
+      uses: actions/checkout@v4
+    
+    # Step 2: Install Rust toolchain with required components
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: clippy
+    
+    # Step 3: Setup Rust caching
+    - name: Setup Rust cache
+      uses: Swatinem/rust-cache@v2
+    
+    # Step 4: Run Clippy with security-focused lints
+    # These lints catch potential security issues in the code
+    - name: Run security-focused Clippy lints
+      run: |
+        echo "Running security-focused Clippy lints..."
+        cargo clippy --all-targets --all-features -- \
+          -W clippy::integer_arithmetic \
+          -W clippy::panic \
+          -W clippy::unwrap_used \
+          -W clippy::expect_used \
+          -W clippy::indexing_slicing \
+          -W clippy::cast_possible_truncation \
+          -W clippy::cast_possible_wrap \
+          -W clippy::cast_precision_loss \
+          -W clippy::cast_sign_loss \
+          -W clippy::float_cmp \
+          -W clippy::float_cmp_const \
+          -W clippy::lossy_float_literal \
+          -W clippy::mem_forget \
+          -W clippy::mem_replace_with_uninit \
+          -W clippy::unimplemented \
+          -W clippy::unreachable \
+          -D warnings
+
+  # Job 5: Supply chain security check
+  supply-chain:
+    name: Supply Chain Security
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    # Step 1: Check out the source code
+    - name: Checkout source code
+      uses: actions/checkout@v4
+    
+    # Step 2: Run GitHub's dependency review action
+    # This analyzes changes to dependencies in pull requests
+    - name: Dependency Review
+      uses: actions/dependency-review-action@v4
+      with:
+        # Fail on high severity vulnerabilities
+        fail-on-severity: high
+        # Comment on PRs with findings
+        comment-summary-in-pr: always
+
+  # Job 6: Create security report
+  security-report:
+    name: Generate Security Report
+    needs: [security-audit, dependency-analysis, license-check, security-linting]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    # Step 1: Check out the source code
+    - name: Checkout source code
+      uses: actions/checkout@v4
+    
+    # Step 2: Download all artifacts
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: security-artifacts
+    
+    # Step 3: Generate comprehensive security report
+    - name: Generate security report
+      run: |
+        echo "# Security Report for $(date)" > security-report.md
+        echo "" >> security-report.md
+        
+        echo "## Repository Information" >> security-report.md
+        echo "- **Repository:** ${{ github.repository }}" >> security-report.md
+        echo "- **Branch:** ${{ github.ref_name }}" >> security-report.md
+        echo "- **Commit:** ${{ github.sha }}" >> security-report.md
+        echo "- **Date:** $(date)" >> security-report.md
+        echo "" >> security-report.md
+        
+        echo "## Security Audit Results" >> security-report.md
+        if [ -f "security-artifacts/security-audit-results/audit-results.json" ]; then
+          vulnerabilities=$(jq '.vulnerabilities | length' security-artifacts/security-audit-results/audit-results.json)
+          echo "- **Vulnerabilities Found:** $vulnerabilities" >> security-report.md
+          
+          if [ "$vulnerabilities" -gt 0 ]; then
+            echo "- **Status:** ⚠️ ATTENTION REQUIRED" >> security-report.md
+            echo "" >> security-report.md
+            echo "### Vulnerability Details" >> security-report.md
+            jq -r '.vulnerabilities[] | "- **" + .advisory.id + "**: " + .advisory.title + " (Severity: " + .advisory.severity + ")"' security-artifacts/security-audit-results/audit-results.json >> security-report.md
+          else
+            echo "- **Status:** ✅ CLEAN" >> security-report.md
+          fi
+        else
+          echo "- **Status:** ❓ AUDIT DATA NOT AVAILABLE" >> security-report.md
+        fi
+        echo "" >> security-report.md
+        
+        echo "## License Compliance" >> security-report.md
+        if [ -f "security-artifacts/license-information/licenses.json" ]; then
+          echo "- **Total Dependencies:** $(jq '. | length' security-artifacts/license-information/licenses.json)" >> security-report.md
+          echo "- **Unique Licenses:** $(jq -r '.[].license' security-artifacts/license-information/licenses.json | sort | uniq | wc -l)" >> security-report.md
+          echo "- **Status:** ✅ ANALYZED" >> security-report.md
+        else
+          echo "- **Status:** ❓ LICENSE DATA NOT AVAILABLE" >> security-report.md
+        fi
+        echo "" >> security-report.md
+        
+        echo "## Workflow Status Summary" >> security-report.md
+        echo "- **Security Audit:** ${{ needs.security-audit.result }}" >> security-report.md
+        echo "- **Dependency Analysis:** ${{ needs.dependency-analysis.result }}" >> security-report.md
+        echo "- **License Check:** ${{ needs.license-check.result }}" >> security-report.md
+        echo "- **Security Linting:** ${{ needs.security-linting.result }}" >> security-report.md
+        echo "" >> security-report.md
+        
+        echo "---" >> security-report.md
+        echo "*Report generated by GitHub Actions Security Workflow*" >> security-report.md
+    
+    # Step 4: Upload security report
+    - name: Upload security report
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-report
+        path: security-report.md
+        retention-days: 90 

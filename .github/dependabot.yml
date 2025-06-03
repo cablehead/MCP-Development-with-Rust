@@ -1,0 +1,77 @@
+# Configuration file for Dependabot
+#
+# This file configures Dependabot to automatically check for and update
+# dependencies in the project. It helps keep the project secure by
+# updating to newer versions of dependencies that fix security vulnerabilities.
+
+version: 2
+
+updates:
+  # Configuration for Rust/Cargo dependencies
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Etc/UTC"
+
+    versioning-strategy: "auto"
+    open-pull-requests-limit: 10
+
+    commit-message:
+      prefix: "cargo"
+      prefix-development: "cargo-dev"
+      include: "scope"
+
+    groups:
+      async-runtime:
+        patterns:
+          - "tokio*"
+          - "futures*"
+          - "async-*"
+
+      serialization:
+        patterns:
+          - "serde*"
+          - "serde_json"
+
+      http-web:
+        patterns:
+          - "reqwest"
+          - "hyper*"
+          - "http*"
+
+      database:
+        patterns:
+          - "sqlx*"
+
+      logging:
+        patterns:
+          - "tracing*"
+          - "log"
+
+    allow:
+      - dependency-type: "all"
+
+    target-branch: "main"
+
+  # Configuration for GitHub Actions dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "09:00"
+      timezone: "Etc/UTC"
+
+    open-pull-requests-limit: 5
+
+    commit-message:
+      prefix: "github-actions"
+      include: "scope"
+
+    allow:
+      - dependency-type: "all"
+
+    target-branch: "main"
