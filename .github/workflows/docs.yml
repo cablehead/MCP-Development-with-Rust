@@ -121,14 +121,16 @@ jobs:
         path: target/doc/
         retention-days: 30
     
-    # Step 8: Setup Pages (only on main branch)
+    # Step 8: Setup Pages (only on main branch, and only if Pages is enabled)
     - name: Setup Pages
+      id: setup-pages
       if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
       uses: actions/configure-pages@v4
+      continue-on-error: true
     
-    # Step 9: Upload to GitHub Pages
+    # Step 9: Upload to GitHub Pages (only if Pages setup succeeded)
     - name: Upload to GitHub Pages
-      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && steps.setup-pages.outcome == 'success'
       uses: actions/upload-pages-artifact@v3
       with:
         path: target/doc/

@@ -125,7 +125,7 @@ jobs:
     
     # Step 2: Install Rust toolchain with the target architecture
     - name: Install Rust toolchain
-      uses: dtolnay/rust-toolchain@stable
+      uses: dtolnay/rust-toolchain@1.86.0
       with:
         targets: ${{ matrix.target }}
     

@@ -30,11 +30,11 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        rust: [stable, beta]
+        rust: [1.86.0, stable, beta]
         include:
           # Add MSRV (Minimum Supported Rust Version) check on Ubuntu
           - os: ubuntu-latest
-            rust: 1.70.0  # Adjust based on your actual MSRV
+            rust: 1.75.0  # Updated MSRV to support Cargo.lock version 4
     
     steps:
     # Step 1: Check out the source code from the repository
