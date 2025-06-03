@@ -64,34 +64,24 @@ jobs:
         
         echo "✅ All required metadata fields are present"
     
-    # Step 5: Test packaging with examples-only feature (no git deps)
-    - name: Test package with examples-only feature
+    # Step 5: Test packaging (all examples without git dependencies)
+    - name: Test package
       run: |
-        echo "Testing package with examples-only feature (no git dependencies)..."
-        cargo package --features examples-only --no-default-features --verbose
-        echo "✅ Package builds successfully with examples-only feature"
+        echo "Testing package for crates.io publishing..."
+        cargo package --verbose
+        echo "✅ Package builds successfully and is ready for crates.io"
     
-    # Step 6: Test packaging with default features (including MCP)
-    - name: Test package with default features
-      run: |
-        echo "Testing package with default features..."
-        # This may fail due to git dependency, which is expected
-        if cargo package --verbose; then
-          echo "✅ Package builds successfully with default features"
-        else
-          echo "⚠️ Package fails with default features (expected due to git dependency)"
-          echo "   This is normal - the examples-only feature should be used for crates.io"
-        fi
-    
-    # Step 7: Verify example binaries can build
+    # Step 6: Verify example binaries can build
     - name: Test example compilation
       run: |
         echo "Testing example binary compilation..."
-        # Test a few key examples
-        cargo build --features examples-only --no-default-features --bin example_01_hello_world
-        cargo build --features examples-only --no-default-features --bin example_02_calculator
-        cargo build --features examples-only --no-default-features --bin example_09_database
-        echo "✅ Key examples compile successfully"
+        # Test a few key examples to ensure they build correctly
+        cargo build --bin example_01_hello_world
+        cargo build --bin example_02_calculator
+        cargo build --bin example_09_database
+        cargo build --bin example_13_auth_service
+        cargo build --bin example_20_enterprise_server
+        echo "✅ All key examples compile successfully"
     
     # Step 8: Generate package information
     - name: Generate package info
@@ -103,9 +93,9 @@ jobs:
         echo "**Description:** $(cargo metadata --format-version 1 --no-deps | jq -r '.packages[0].description')" >> package-info.md
         echo "" >> package-info.md
         echo "## Features" >> package-info.md
-        echo "- \`default\`: Includes MCP SDK (git dependency)" >> package-info.md
-        echo "- \`mcp\`: MCP SDK support" >> package-info.md
-        echo "- \`examples-only\`: Just the educational code" >> package-info.md
+        echo "- Educational Rust examples for MCP development" >> package-info.md
+        echo "- 20 comprehensive examples from basic to enterprise level" >> package-info.md
+        echo "- No external git dependencies for easy installation" >> package-info.md
         echo "" >> package-info.md
         echo "## Binaries" >> package-info.md
         cargo metadata --format-version 1 --no-deps | jq -r '.packages[0].targets[] | select(.kind[] == "bin") | "- " + .name' >> package-info.md
