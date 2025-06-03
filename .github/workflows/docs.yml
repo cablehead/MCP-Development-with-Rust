@@ -412,68 +412,121 @@ jobs:
         </html>
         EOF
         
-                 # Create a robots.txt for search engines
-         cat > target/doc/robots.txt << 'EOF'
-         User-agent: *
-         Allow: /
-         
-         Sitemap: https://rustsandbox.github.io/MCP-Development-with-Rust/sitemap.html
-         EOF
-         
-         # Create a custom 404 page
-         cat > target/doc/404.html << 'EOF'
-         <!DOCTYPE html>
-         <html lang="en">
-         <head>
-             <meta charset="UTF-8">
-             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-             <title>Page Not Found - MCP Rust Examples</title>
-             <style>
-                 body { 
-                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-                     text-align: center; 
-                     padding: 50px; 
-                     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                     color: white;
-                     min-height: 100vh;
-                     margin: 0;
-                     display: flex;
-                     flex-direction: column;
-                     justify-content: center;
-                     align-items: center;
-                 }
-                 .container { background: rgba(255,255,255,0.1); padding: 40px; border-radius: 12px; backdrop-filter: blur(10px); }
-                 h1 { font-size: 4rem; margin-bottom: 20px; }
-                 p { font-size: 1.2rem; margin-bottom: 30px; }
-                 .btn { 
-                     display: inline-block; 
-                     padding: 12px 24px; 
-                     background: rgba(255,255,255,0.2); 
-                     color: white; 
-                     text-decoration: none; 
-                     border-radius: 6px; 
-                     transition: background 0.3s ease;
-                     border: 2px solid white;
-                 }
-                 .btn:hover { background: rgba(255,255,255,0.3); }
-             </style>
-         </head>
-         <body>
-             <div class="container">
-                 <h1>🦀 404</h1>
-                 <p>Oops! The page you're looking for doesn't exist.</p>
-                 <p>But don't worry, there's plenty of great content to explore!</p>
-                 <a href="/MCP-Development-with-Rust/" class="btn">🏠 Go Home</a>
-             </div>
-         </body>
-         </html>
-         EOF
-         
-         # Create a CNAME file for custom domain (if needed)
-         # Uncomment the line below if you have a custom domain
-         # echo "your-domain.com" > target/doc/CNAME
-         
-         echo "✅ Site structure created successfully"
+        # Create a robots.txt for search engines
+        cat > target/doc/robots.txt << 'EOF'
+        User-agent: *
+        Allow: /
+        
+        Sitemap: https://rustsandbox.github.io/MCP-Development-with-Rust/sitemap.html
+        EOF
+        
+        # Create a custom 404 page
+        cat > target/doc/404.html << 'EOF'
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Page Not Found - MCP Rust Examples</title>
+            <style>
+                body { 
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+                    text-align: center; 
+                    padding: 50px; 
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    min-height: 100vh;
+                    margin: 0;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                }
+                .container { background: rgba(255,255,255,0.1); padding: 40px; border-radius: 12px; backdrop-filter: blur(10px); }
+                h1 { font-size: 4rem; margin-bottom: 20px; }
+                p { font-size: 1.2rem; margin-bottom: 30px; }
+                .btn { 
+                    display: inline-block; 
+                    padding: 12px 24px; 
+                    background: rgba(255,255,255,0.2); 
+                    color: white; 
+                    text-decoration: none; 
+                    border-radius: 6px; 
+                    transition: background 0.3s ease;
+                    border: 2px solid white;
+                }
+                .btn:hover { background: rgba(255,255,255,0.3); }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>🦀 404</h1>
+                <p>Oops! The page you're looking for doesn't exist.</p>
+                <p>But don't worry, there's plenty of great content to explore!</p>
+                <a href="/MCP-Development-with-Rust/" class="btn">🏠 Go Home</a>
+            </div>
+        </body>
+        </html>
+        EOF
+        
+        # Create a CNAME file for custom domain (if needed)
+        # Uncomment the line below if you have a custom domain
+        # echo "your-domain.com" > target/doc/CNAME
+        
+        echo "✅ Site structure created successfully"
+    
+    # Step 5.7: Ensure 404 page is created (fix for deployment issue)
+    - name: Create 404 page
+      run: |
+        echo "Creating 404.html page..."
+        cat > target/doc/404.html << 'EOF'
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Page Not Found - MCP Rust Examples</title>
+            <style>
+                body { 
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+                    text-align: center; 
+                    padding: 50px; 
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    min-height: 100vh;
+                    margin: 0;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                }
+                .container { background: rgba(255,255,255,0.1); padding: 40px; border-radius: 12px; backdrop-filter: blur(10px); }
+                h1 { font-size: 4rem; margin-bottom: 20px; }
+                p { font-size: 1.2rem; margin-bottom: 30px; }
+                .btn { 
+                    display: inline-block; 
+                    padding: 12px 24px; 
+                    background: rgba(255,255,255,0.2); 
+                    color: white; 
+                    text-decoration: none; 
+                    border-radius: 6px; 
+                    transition: background 0.3s ease;
+                    border: 2px solid white;
+                }
+                .btn:hover { background: rgba(255,255,255,0.3); }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>🦀 404</h1>
+                <p>Oops! The page you're looking for doesn't exist.</p>
+                <p>But don't worry, there's plenty of great content to explore!</p>
+                <a href="/MCP-Development-with-Rust/" class="btn">🏠 Go Home</a>
+            </div>
+        </body>
+        </html>
+        EOF
+        echo "✅ 404.html created successfully"
     
     # Step 6: Verify documentation structure
     - name: Verify documentation
