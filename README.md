@@ -93,7 +93,7 @@ We've created two distinct learning paths to serve different audiences and learn
 mcp_rust_examples = "0.1.0"
 
 # Or install binaries globally
-cargo install mcp_rust_examples --features examples-only
+cargo install mcp_rust_examples
 
 # Run examples directly
 example_01_hello_world
@@ -207,40 +207,39 @@ mcp-rust-tutorial/
 
 ---
 
-## 🔧 **Feature Flags**
+## 🔧 **Installation Options**
 
-This crate supports multiple feature configurations for different use cases:
+This crate provides educational Rust examples for MCP development:
 
-**Default Features:**
+**Simple Installation:**
 ```toml
 [dependencies]
-mcp_rust_examples = "0.1.0"  # Includes MCP SDK (development branch)
+mcp_rust_examples = "0.1.0"  # Educational examples with all dependencies
 ```
 
-**Examples-Only Mode (Recommended for crates.io):**
-```toml
-[dependencies]
-mcp_rust_examples = { version = "0.1.0", features = ["examples-only"], default-features = false }
-```
-
-**Available Features:**
-- `default` = `["mcp"]` - Full MCP SDK integration
-- `mcp` - Enable MCP protocol support (requires git dependency)
-- `examples-only` - Just the educational code and examples
-
-**Installation Commands:**
+**Global Binary Installation:**
 ```bash
-# With full MCP support (from git)
+# Install all example binaries globally
 cargo install mcp_rust_examples
 
-# Examples only (from crates.io)
-cargo install mcp_rust_examples --features examples-only --no-default-features
+# Run any example
+example_01_hello_world
+example_13_auth_service
+example_20_enterprise_server
+```
 
-# For development
+**Development Setup:**
+```bash
+# For development and extending examples
 git clone https://github.com/RustSandbox/MCP-Development-with-Rust
 cd MCP-Development-with-Rust
 cargo build --all
+
+# Run examples locally
+cargo run --bin example_01_hello_world
 ```
+
+**Note:** For full MCP SDK integration in your own projects, see the [official rmcp documentation](https://hackmd.io/@Hamze/S1tlKZP0kx).
 
 ## 🛠️ **Development Commands**
 

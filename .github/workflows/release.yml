@@ -236,15 +236,15 @@ jobs:
       run: |
         echo "Verifying package for crates.io publishing..."
         echo "Package contains educational examples without git dependencies"
-        cargo package --verbose
-        cargo package --list
+        cargo package --verbose --allow-dirty
+        cargo package --list --allow-dirty
     
     # Step 5: Publish to crates.io
     - name: Publish to crates.io
       run: |
         echo "Publishing MCP Rust Examples to crates.io..."
         echo "📦 Publishing educational Rust examples for the MCP community"
-        cargo publish --token ${{ secrets.CARGO_REGISTRY_TOKEN }} --verbose
+        cargo publish --token ${{ secrets.CARGO_REGISTRY_TOKEN }} --verbose --allow-dirty
       env:
         CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 

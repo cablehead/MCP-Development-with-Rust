@@ -47,13 +47,13 @@ jobs:
       run: |
         echo "Validating Cargo.toml metadata for crates.io..."
         
-        # Check required fields are present
-        cargo metadata --format-version 1 --no-deps | jq -r '.packages[0]' > package.json
+        # Check required fields are present using a temporary file
+        cargo metadata --format-version 1 --no-deps | jq -r '.packages[0]' > /tmp/package.json
         
         # Verify required fields
         required_fields=("description" "license" "repository" "authors")
         for field in "${required_fields[@]}"; do
-          value=$(jq -r ".$field" package.json)
+          value=$(jq -r ".$field" /tmp/package.json)
           if [ "$value" == "null" ] || [ -z "$value" ]; then
             echo "❌ Missing required field: $field"
             exit 1
@@ -62,13 +62,16 @@ jobs:
           fi
         done
         
+        # Clean up temporary file
+        rm -f /tmp/package.json
+        
         echo "✅ All required metadata fields are present"
     
     # Step 5: Test packaging (all examples without git dependencies)
     - name: Test package
       run: |
         echo "Testing package for crates.io publishing..."
-        cargo package --verbose
+        cargo package --verbose --allow-dirty
         echo "✅ Package builds successfully and is ready for crates.io"
     
     # Step 6: Verify example binaries can build
