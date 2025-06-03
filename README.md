@@ -350,20 +350,8 @@ This educational resource is released under the **MIT License**, promoting globa
 ## 📞 **Support & Contact**
 
 **For Learning Support:**
-- 📧 **Educational Questions**: education@remolab.ai
 - 💬 **Community Discussion**: [GitHub Discussions](../../discussions)
 - 📖 **Documentation Issues**: [GitHub Issues](../../issues)
-
-**For Business Inquiries:**
-- 🏢 **Enterprise Training**: enterprise@remolab.ai
-- 🤝 **Partnership Opportunities**: partnerships@remolab.ai
-- 📞 **General Contact**: contact@remolab.ai
-
-**Response Times:**
-- Educational support: Within 24 hours
-- Bug reports: Within 48 hours
-- Feature requests: Within 1 week
-- Enterprise inquiries: Within 4 hours
 
 ---
 
