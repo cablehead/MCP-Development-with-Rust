@@ -97,7 +97,7 @@ tokio = { version = "1.0", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
-# Error handling utilities
+# Error handling utilities - pinning to avoid v2 breaking changes
 thiserror = "1.0"
 anyhow = "1.0"
 
@@ -108,14 +108,14 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 # HTTP client for example 8
 reqwest = { version = "0.11", features = ["json"] }
 
-# Database for example 9
-sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "sqlite"] }
+# Database for example 9 - using latest secure version
+sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "sqlite"] }
 
 # Time and UUID utilities
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1.0", features = ["v4", "serde"] }
 
-# Random number generation for streaming example
+# Random number generation for streaming example - stable version
 rand = "0.8"
 
 # Additional utilities

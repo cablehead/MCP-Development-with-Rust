@@ -1,3 +1,18 @@
+//! # MCP Rust Examples Project
+//!
+//! This project provides comprehensive examples for building Model Context Protocol (MCP)
+//! servers using Rust. It includes educational examples ranging from basic implementations
+//! to production-ready systems.
+//!
+//! ## Usage
+//!
+//! Run individual examples using:
+//! ```bash
+//! cargo run --bin example_01_hello_world
+//! ```
+//!
+//! See the README.md and tutorial files for detailed learning guides.
+
 // Main entry point for the MCP examples project
 // This file is primarily for testing and development
 

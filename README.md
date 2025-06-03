@@ -256,19 +256,7 @@ With over 20 years of experience teaching Rust to international audiences, this 
 **Hamze Ghalebi**  
 *Chief Technology Officer, Remolab*
 
-**Professional Background:**
-- 20+ years experience in Rust programming and systems architecture
-- International educator with students across 6 continents
-- Expert in MCP protocol development and implementation
-- Specialist in building developer-friendly learning resources
 
-**Teaching Philosophy:**
-"Technology should be accessible to everyone, regardless of their cultural background or native language. The best way to learn programming is through practical application with clear, supportive guidance."
-
-**Previous Works:**
-- Multiple open-source Rust projects with international adoption
-- Technical workshops delivered in 15+ countries
-- Mentorship of 500+ developers worldwide
 
 **Connect:**
 - GitHub: [hghalebi](https://github.com/hghalebi)
