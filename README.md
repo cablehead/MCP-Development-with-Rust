@@ -18,8 +18,8 @@
 This comprehensive learning resource provides **two complete tutorials** for mastering Model Context Protocol (MCP) development with Rust. From beginner-friendly introductions to production-ready enterprise applications, these tutorials guide you through every aspect of building robust MCP servers.
 
 **Published by:** [Remolab](https://remolab.ai) - Advanced Technology Solutions  
-**Author:** **Hamze Ghalebi**, CTO at Remolab  
-**Experience:** 20+ years in Rust programming and international software education
+**Author:** **Hamze Ghalebi**, CTO
+
 
 ---
 
