@@ -229,71 +229,257 @@ jobs:
            cp README.md target/doc/website/
          fi
     
-    # Step 5.5: Create tutorial HTML pages and navigation
-    - name: Create tutorial pages
+    # Step 5.5: Install markdown processing tools and create tutorial HTML
+    - name: Install markdown processing tools
       run: |
-        echo "Creating tutorial HTML pages..."
+        echo "Installing markdown processing tools..."
+        # Install pandoc for proper markdown to HTML conversion
+        sudo apt-get update
+        sudo apt-get install -y pandoc
         
-        # Create a simple HTML template for tutorials
+        # Install Python markdown for fallback
+        pip install markdown[extra] pygments
+    
+    - name: Create beautiful tutorial HTML pages
+      run: |
+        echo "Creating beautiful tutorial HTML pages..."
+        
+        # Create enhanced CSS for beautiful rendering
+        cat > target/doc/tutorials/tutorial-style.css << 'EOF'
+        /* Beautiful Tutorial Styling */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; 
+            line-height: 1.7; 
+            color: #2c3e50; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 40px;
+            margin: 20px auto;
+        }
+        
+        .nav { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            margin-bottom: 40px; 
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .nav a { 
+            color: white; 
+            text-decoration: none; 
+            margin: 0 20px; 
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background 0.3s ease;
+        }
+        .nav a:hover { 
+            background: rgba(255,255,255,0.2);
+            text-decoration: none;
+        }
+        
+        h1 { 
+            color: #667eea; 
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        h2 { 
+            color: #4a5568; 
+            font-size: 1.8rem;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        h3 { 
+            color: #667eea; 
+            font-size: 1.4rem;
+            margin: 30px 0 15px 0;
+        }
+        
+        p {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+        
+        pre { 
+            background: #2d3748; 
+            color: #e2e8f0;
+            padding: 20px; 
+            border-radius: 8px; 
+            overflow-x: auto; 
+            border-left: 4px solid #667eea;
+            margin: 20px 0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        code { 
+            background: #edf2f7; 
+            color: #e53e3e;
+            padding: 3px 8px; 
+            border-radius: 4px; 
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+            font-size: 0.9em;
+        }
+        
+        pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+        }
+        
+        .example { 
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 1px solid #dee2e6; 
+            border-radius: 12px; 
+            padding: 25px; 
+            margin: 25px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .toc { 
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 25px; 
+            border-radius: 12px; 
+            margin: 30px 0;
+            border-left: 5px solid #2196f3;
+        }
+        .toc ul { list-style-type: none; padding-left: 20px; }
+        .toc > ul { padding-left: 0; }
+        .toc a { color: #1976d2; text-decoration: none; font-weight: 500; }
+        .toc a:hover { text-decoration: underline; color: #0d47a1; }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            border-left: 5px solid #f39c12;
+        }
+        
+        .note {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            border-left: 5px solid #28a745;
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #f8d7da 0%, #f1b2b7 100%);
+            border: 1px solid #f1b2b7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            border-left: 5px solid #dc3545;
+        }
+        
+        ul, ol {
+            margin-bottom: 20px;
+            padding-left: 30px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        strong {
+            color: #2d3748;
+            font-weight: 600;
+        }
+        
+        em {
+            color: #667eea;
+            font-style: italic;
+        }
+        
+        blockquote {
+            border-left: 4px solid #667eea;
+            padding-left: 20px;
+            margin: 20px 0;
+            font-style: italic;
+            color: #4a5568;
+            background: #f7fafc;
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        a {
+            color: #667eea;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+        
+        a:hover {
+            border-bottom: 1px solid #667eea;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 30px;
+            color: #718096;
+            border-top: 1px solid #e2e8f0;
+        }
+        EOF
+        
+        # Create complete HTML template
         cat > target/doc/tutorials/template.html << 'EOF'
         <!DOCTYPE html>
         <html lang="en">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>MCP Rust Tutorial</title>
-            <style>
-                body { 
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-                    line-height: 1.6; 
-                    color: #333; 
-                    max-width: 1000px; 
-                    margin: 0 auto; 
-                    padding: 20px;
-                    background: #fff;
-                }
-                .nav { 
-                    background: #667eea; 
-                    color: white; 
-                    padding: 15px; 
-                    border-radius: 8px; 
-                    margin-bottom: 30px; 
-                    text-align: center;
-                }
-                .nav a { color: white; text-decoration: none; margin: 0 15px; }
-                .nav a:hover { text-decoration: underline; }
-                h1, h2, h3 { color: #667eea; }
-                pre { 
-                    background: #f4f4f4; 
-                    padding: 15px; 
-                    border-radius: 8px; 
-                    overflow-x: auto; 
-                    border-left: 4px solid #667eea;
-                }
-                code { 
-                    background: #f4f4f4; 
-                    padding: 2px 6px; 
-                    border-radius: 4px; 
-                    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-                }
-                .example { 
-                    background: #f8f9fa; 
-                    border: 1px solid #dee2e6; 
-                    border-radius: 8px; 
-                    padding: 20px; 
-                    margin: 20px 0;
-                }
-                .toc { 
-                    background: #e9ecef; 
-                    padding: 20px; 
-                    border-radius: 8px; 
-                    margin: 20px 0;
-                }
-                .toc ul { list-style-type: none; padding-left: 20px; }
-                .toc > ul { padding-left: 0; }
-                .toc a { color: #667eea; text-decoration: none; }
-                .toc a:hover { text-decoration: underline; }
-            </style>
+            <title>MCP Rust Tutorial - Complete Learning Resource</title>
+            <link rel="stylesheet" href="tutorial-style.css">
+            <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦀</text></svg>">
+            <meta name="description" content="Complete tutorial for learning MCP (Model Context Protocol) development with Rust">
+            <meta name="keywords" content="Rust, MCP, Model Context Protocol, Tutorial, Programming">
         </head>
         <body>
             <div class="nav">
@@ -302,43 +488,33 @@ jobs:
                 <a href="mcp_rust_tutorial.html">📖 Tutorial</a>
                 <a href="../website/readme.html">📄 README</a>
             </div>
+            <div class="container">
         EOF
         
-        # If pandoc is available, convert markdown to HTML
-        if command -v pandoc >/dev/null 2>&1; then
-          echo "Converting tutorial markdown to HTML with pandoc..."
-          if [ -f "mcp_rust_tutorial.md" ]; then
-            pandoc mcp_rust_tutorial.md -o target/doc/tutorials/mcp_rust_tutorial.html \
-              --standalone \
-              --toc \
-              --toc-depth=3 \
-              --css=tutorial-style.css \
-              --template=target/doc/tutorials/template.html 2>/dev/null || {
-              echo "Pandoc conversion failed, creating simple HTML wrapper..."
-              cat target/doc/tutorials/template.html > target/doc/tutorials/mcp_rust_tutorial.html
-              echo '<div class="tutorial-content">' >> target/doc/tutorials/mcp_rust_tutorial.html
-              echo '<pre>' >> target/doc/tutorials/mcp_rust_tutorial.html
-              cat mcp_rust_tutorial.md >> target/doc/tutorials/mcp_rust_tutorial.html
-              echo '</pre>' >> target/doc/tutorials/mcp_rust_tutorial.html
-              echo '</div></body></html>' >> target/doc/tutorials/mcp_rust_tutorial.html
-            }
-          else
-            echo "Tutorial markdown not found, creating placeholder..."
-            cat target/doc/tutorials/template.html > target/doc/tutorials/mcp_rust_tutorial.html
-            echo '<h1>Tutorial Coming Soon</h1><p>The tutorial content will be available soon.</p></body></html>' >> target/doc/tutorials/mcp_rust_tutorial.html
-          fi
+        # Convert markdown to beautiful HTML using pandoc
+        if [ -f "mcp_rust_tutorial.md" ]; then
+          echo "Converting tutorial markdown to beautiful HTML..."
+          pandoc mcp_rust_tutorial.md \
+            -f markdown+smart+pipe_tables+fenced_code_blocks+definition_lists \
+            -t html5 \
+            --standalone \
+            --toc \
+            --toc-depth=4 \
+            --section-divs \
+            --html-q-tags \
+            --highlight-style=github \
+            --template=target/doc/tutorials/template.html \
+            -o target/doc/tutorials/mcp_rust_tutorial.html \
+            --metadata title="MCP Rust Tutorial - Complete Learning Resource"
+          
+          # Add closing tags
+          echo '</div><div class="footer">🦀 <strong>MCP Rust Tutorial</strong> | Built with ❤️ for the Rust Community</div></body></html>' >> target/doc/tutorials/mcp_rust_tutorial.html
+          
+          echo "✅ Beautiful tutorial HTML created successfully!"
         else
-          echo "Creating simple HTML wrapper for tutorial..."
+          echo "⚠️ Tutorial markdown not found, creating placeholder..."
           cat target/doc/tutorials/template.html > target/doc/tutorials/mcp_rust_tutorial.html
-          echo '<div class="tutorial-content">' >> target/doc/tutorials/mcp_rust_tutorial.html
-          if [ -f "mcp_rust_tutorial.md" ]; then
-            echo '<pre>' >> target/doc/tutorials/mcp_rust_tutorial.html
-            cat mcp_rust_tutorial.md >> target/doc/tutorials/mcp_rust_tutorial.html
-            echo '</pre>' >> target/doc/tutorials/mcp_rust_tutorial.html
-          else
-            echo '<h1>Tutorial Coming Soon</h1><p>The tutorial content will be available soon.</p>' >> target/doc/tutorials/mcp_rust_tutorial.html
-          fi
-          echo '</div></body></html>' >> target/doc/tutorials/mcp_rust_tutorial.html
+          echo '<h1>🚧 Tutorial Coming Soon</h1><p>The comprehensive MCP Rust tutorial will be available soon.</p></div></body></html>' >> target/doc/tutorials/mcp_rust_tutorial.html
         fi
         
         # Create a CSS file for tutorials
