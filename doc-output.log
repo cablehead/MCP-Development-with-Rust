@@ -206,3 +206,11 @@
 [1m[32m  Downloaded[0m atoi v2.0.0
 [1m[32m  Downloaded[0m cpufeatures v0.2.17
 [1m[36m    Blocking[0m waiting for file lock on build directory
+[1m[32m    Checking[0m openssl v0.10.73
+[1m[32m    Checking[0m native-tls v0.2.14
+[1m[32m    Checking[0m tokio-native-tls v0.3.1
+[1m[32m    Checking[0m hyper-tls v0.5.0
+[1m[32m    Checking[0m reqwest v0.11.27
+[1m[32m Documenting[0m mcp_rust_examples v0.1.0 (/Users/hamzeghalebi/projects/learning/rust/llms/mcps/tutorial)
+[1m[32m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 4m 51s
+[1m[32m   Generated[0m /Users/hamzeghalebi/projects/learning/rust/llms/mcps/tutorial/target/doc/example_01_hello_world/index.html and 20 other files

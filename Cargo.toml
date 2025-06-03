@@ -10,7 +10,7 @@ documentation = "https://rustsandbox.github.io/MCP-Development-with-Rust/"
 homepage = "https://rustsandbox.github.io/MCP-Development-with-Rust/"
 readme = "README.md"
 keywords = ["mcp", "protocol", "examples", "tutorial", "education"]
-categories = ["development-tools", "tutorial", "network-programming"]
+categories = ["development-tools", "network-programming", "rust-patterns"]
 exclude = [".github/", "scripts/", "test-deployment.md", ".actrc", ".gitignore"]
 
 [[bin]]
