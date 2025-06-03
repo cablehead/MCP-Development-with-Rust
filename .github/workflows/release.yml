@@ -212,10 +212,44 @@ jobs:
         asset_name: ${{ matrix.archive_name }}.${{ matrix.archive_extension }}
         asset_content_type: ${{ matrix.archive_extension == 'zip' && 'application/zip' || 'application/gzip' }}
 
-  # Job 3: Generate and upload checksums for verification
+  # Job 3: Publish to crates.io
+  publish-crate:
+    name: Publish to crates.io
+    needs: create-release
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Step 1: Check out the source code
+    - name: Checkout source code
+      uses: actions/checkout@v4
+    
+    # Step 2: Install Rust toolchain
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@1.86.0
+    
+    # Step 3: Setup Rust cache
+    - name: Setup Rust cache
+      uses: Swatinem/rust-cache@v2
+    
+    # Step 4: Verify the package can be published
+    - name: Verify package
+      run: |
+        echo "Verifying package for crates.io publishing..."
+        cargo package --verbose
+        cargo package --list
+    
+    # Step 5: Publish to crates.io
+    - name: Publish to crates.io
+      run: |
+        echo "Publishing MCP Rust Examples to crates.io..."
+        cargo publish --token ${{ secrets.CARGO_REGISTRY_TOKEN }} --verbose
+      env:
+        CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+  # Job 4: Generate and upload checksums for verification
   checksums:
     name: Generate Checksums
-    needs: [create-release, build]
+    needs: [create-release, build, publish-crate]
     runs-on: ubuntu-latest
     
     steps:

@@ -1,0 +1,121 @@
+# Workflow: Test crates.io Publishing
+#
+# This workflow tests that the package can be prepared for crates.io publishing
+# without actually publishing it. Useful for validating the package before release.
+
+name: Test Publishing
+
+# Trigger conditions
+on:
+  # Run on pushes to main to ensure package stays publishable
+  push:
+    branches: [ "main", "master" ]
+  
+  # Run on pull requests to validate changes
+  pull_request:
+    branches: [ "main", "master" ]
+  
+  # Allow manual triggering
+  workflow_dispatch:
+
+# Environment variables
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+# Define jobs
+jobs:
+  test-package:
+    name: Test Package for Publishing
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Step 1: Check out the source code
+    - name: Checkout source code
+      uses: actions/checkout@v4
+    
+    # Step 2: Install Rust toolchain
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@1.86.0
+    
+    # Step 3: Setup Rust cache
+    - name: Setup Rust cache
+      uses: Swatinem/rust-cache@v2
+    
+    # Step 4: Validate Cargo.toml metadata
+    - name: Validate package metadata
+      run: |
+        echo "Validating Cargo.toml metadata for crates.io..."
+        
+        # Check required fields are present
+        cargo metadata --format-version 1 --no-deps | jq -r '.packages[0]' > package.json
+        
+        # Verify required fields
+        required_fields=("description" "license" "repository" "authors")
+        for field in "${required_fields[@]}"; do
+          value=$(jq -r ".$field" package.json)
+          if [ "$value" == "null" ] || [ -z "$value" ]; then
+            echo "❌ Missing required field: $field"
+            exit 1
+          else
+            echo "✅ $field: $value"
+          fi
+        done
+        
+        echo "✅ All required metadata fields are present"
+    
+    # Step 5: Test packaging with examples-only feature (no git deps)
+    - name: Test package with examples-only feature
+      run: |
+        echo "Testing package with examples-only feature (no git dependencies)..."
+        cargo package --features examples-only --verbose
+        echo "✅ Package builds successfully with examples-only feature"
+    
+    # Step 6: Test packaging with default features (including MCP)
+    - name: Test package with default features
+      run: |
+        echo "Testing package with default features..."
+        # This may fail due to git dependency, which is expected
+        if cargo package --verbose; then
+          echo "✅ Package builds successfully with default features"
+        else
+          echo "⚠️ Package fails with default features (expected due to git dependency)"
+          echo "   This is normal - the examples-only feature should be used for crates.io"
+        fi
+    
+    # Step 7: Verify example binaries can build
+    - name: Test example compilation
+      run: |
+        echo "Testing example binary compilation..."
+        # Test a few key examples
+        cargo build --features examples-only --bin example_01_hello_world
+        cargo build --features examples-only --bin example_02_calculator
+        cargo build --features examples-only --bin example_09_database
+        echo "✅ Key examples compile successfully"
+    
+    # Step 8: Generate package information
+    - name: Generate package info
+      run: |
+        echo "# Package Information" > package-info.md
+        echo "" >> package-info.md
+        echo "**Name:** $(cargo metadata --format-version 1 --no-deps | jq -r '.packages[0].name')" >> package-info.md
+        echo "**Version:** $(cargo metadata --format-version 1 --no-deps | jq -r '.packages[0].version')" >> package-info.md
+        echo "**Description:** $(cargo metadata --format-version 1 --no-deps | jq -r '.packages[0].description')" >> package-info.md
+        echo "" >> package-info.md
+        echo "## Features" >> package-info.md
+        echo "- \`default\`: Includes MCP SDK (git dependency)" >> package-info.md
+        echo "- \`mcp\`: MCP SDK support" >> package-info.md
+        echo "- \`examples-only\`: Just the educational code" >> package-info.md
+        echo "" >> package-info.md
+        echo "## Binaries" >> package-info.md
+        cargo metadata --format-version 1 --no-deps | jq -r '.packages[0].targets[] | select(.kind[] == "bin") | "- " + .name' >> package-info.md
+        
+        cat package-info.md
+    
+    # Step 9: Upload package info
+    - name: Upload package information
+      uses: actions/upload-artifact@v4
+      with:
+        name: package-info
+        path: package-info.md
+        retention-days: 30 

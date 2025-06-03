@@ -2,6 +2,16 @@
 name = "mcp_rust_examples"
 version = "0.1.0"
 edition = "2021"
+authors = ["Hamze Ghalebi <hamze@remolab.ai>"]
+license = "MIT"
+description = "Complete educational resource for learning MCP (Model Context Protocol) development with Rust - 20 comprehensive examples from beginner to enterprise level"
+repository = "https://github.com/RustSandbox/MCP-Development-with-Rust"
+documentation = "https://rustsandbox.github.io/MCP-Development-with-Rust/"
+homepage = "https://rustsandbox.github.io/MCP-Development-with-Rust/"
+readme = "README.md"
+keywords = ["mcp", "protocol", "examples", "tutorial", "education"]
+categories = ["development-tools", "tutorial", "network-programming"]
+exclude = [".github/", "scripts/", "test-deployment.md", ".actrc", ".gitignore"]
 
 [[bin]]
 name = "example_01_hello_world"
@@ -85,10 +95,11 @@ path = "src/examples/example_20_enterprise_server.rs"
 
 [dependencies]
 # Core MCP SDK - using development branch for latest features
+# Note: Made optional for crates.io publishing compatibility
 rmcp = { git = "https://github.com/modelcontextprotocol/rust-sdk", branch = "main", features = [
     "server",
     "client",
-] }
+], optional = true }
 
 # Essential async runtime
 tokio = { version = "1.0", features = ["full"] }
@@ -126,3 +137,9 @@ sha2 = "0.10"
 
 [dev-dependencies]
 tempfile = "3.0"
+
+[features]
+default = ["mcp"]
+mcp = ["rmcp"]
+examples-only = [
+] # For users who just want the educational code without MCP dependencies
