@@ -66,40 +66,419 @@ jobs:
         # Treat documentation warnings as errors to ensure quality
         RUSTDOCFLAGS: "-D warnings"
     
-    # Step 5: Create a simple documentation index
-    - name: Create documentation index
+    # Step 5: Create comprehensive documentation website
+    - name: Create documentation website
       run: |
-        echo "Creating documentation index..."
+        echo "Creating comprehensive documentation website..."
+        
+        # Create main website directory structure
+        mkdir -p target/doc/website
+        mkdir -p target/doc/tutorials
+        
+        # Copy tutorial markdown files
+        cp README.md target/doc/website/
+        cp mcp_rust_tutorial.md target/doc/tutorials/ 2>/dev/null || echo "Tutorial file not found, skipping"
+        
+        # Create main index page
         cat > target/doc/index.html << 'EOF'
         <!DOCTYPE html>
-        <html>
+        <html lang="en">
         <head>
-            <title>MCP Rust Examples Documentation</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>MCP Rust Examples - Complete Learning Resource</title>
             <style>
-                body { font-family: Arial, sans-serif; margin: 40px; }
-                h1 { color: #333; }
-                .card { background: #f5f5f5; padding: 20px; margin: 10px 0; border-radius: 5px; }
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { 
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+                    line-height: 1.6; 
+                    color: #333; 
+                    background: #f8f9fa;
+                }
+                .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+                .header { 
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                    color: white; 
+                    padding: 60px 0; 
+                    text-align: center; 
+                    margin-bottom: 40px;
+                }
+                .header h1 { font-size: 3rem; margin-bottom: 20px; }
+                .header p { font-size: 1.2rem; opacity: 0.9; }
+                .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 40px; }
+                .card { 
+                    background: white; 
+                    padding: 30px; 
+                    border-radius: 12px; 
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+                    transition: transform 0.3s ease;
+                }
+                .card:hover { transform: translateY(-5px); }
+                .card h3 { color: #667eea; margin-bottom: 15px; font-size: 1.4rem; }
+                .card p { color: #666; margin-bottom: 20px; }
+                .btn { 
+                    display: inline-block; 
+                    padding: 12px 24px; 
+                    background: #667eea; 
+                    color: white; 
+                    text-decoration: none; 
+                    border-radius: 6px; 
+                    transition: background 0.3s ease;
+                }
+                .btn:hover { background: #5a6fd8; }
+                .examples { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+                .examples h3 { color: #667eea; margin-bottom: 20px; }
+                .example-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+                .example-item { 
+                    padding: 15px; 
+                    background: #f8f9fa; 
+                    border-radius: 8px; 
+                    border-left: 4px solid #667eea;
+                }
+                .example-item strong { color: #333; }
+                .footer { text-align: center; margin-top: 60px; padding: 30px; color: #666; }
+                code { 
+                    background: #f4f4f4; 
+                    padding: 2px 6px; 
+                    border-radius: 4px; 
+                    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+                }
+                .highlight { background: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107; margin: 20px 0; }
             </style>
         </head>
         <body>
-            <h1>🦀 MCP Rust Examples Documentation</h1>
-            <div class="card">
-                <h3>API Documentation</h3>
-                <p><a href="mcp_rust_examples/index.html">Main Crate Documentation</a></p>
+            <div class="header">
+                <div class="container">
+                    <h1>🦀 MCP Rust Examples</h1>
+                    <p>Complete Learning Resource for Model Context Protocol Development with Rust</p>
+                </div>
             </div>
-            <div class="card">
-                <h3>Getting Started</h3>
-                <pre>cargo build --all-targets</pre>
-                <pre>cargo run --bin example_01_hello_world</pre>
+            
+            <div class="container">
+                <div class="highlight">
+                    <strong>🚀 Ready to start?</strong> Choose your learning path and begin building amazing MCP applications with Rust!
+                </div>
+                
+                <div class="grid">
+                    <div class="card">
+                        <h3>📚 API Documentation</h3>
+                        <p>Complete Rust API documentation for all examples and utilities. Generated from source code comments.</p>
+                        <a href="mcp_rust_examples/index.html" class="btn">Browse API Docs</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>📖 Learning Tutorials</h3>
+                        <p>Comprehensive tutorials covering MCP development from beginner to enterprise level.</p>
+                        <a href="tutorials/mcp_rust_tutorial.html" class="btn">Start Learning</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>🎯 Quick Start</h3>
+                        <p>Get up and running quickly with our step-by-step setup guide and first example.</p>
+                        <div style="margin-top: 15px;">
+                            <code>cargo run --bin example_01_hello_world</code>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>🛠️ Development Tools</h3>
+                        <p>Local testing tools and scripts for development workflow optimization.</p>
+                        <div style="margin-top: 15px;">
+                            <code>./scripts/test-workflows.sh</code>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="examples">
+                    <h3>🎪 20 Complete Working Examples</h3>
+                    <div class="example-list">
+                        <div class="example-item">
+                            <strong>Examples 1-5:</strong> Basic MCP Concepts<br>
+                            <small>Hello World, Calculator, Text Processor, Resource Provider</small>
+                        </div>
+                        <div class="example-item">
+                            <strong>Examples 6-10:</strong> Intermediate Features<br>
+                            <small>Configuration, File Ops, HTTP Client, Database, Streaming</small>
+                        </div>
+                        <div class="example-item">
+                            <strong>Examples 11-15:</strong> Advanced Patterns<br>
+                            <small>Monitoring, Task Queues, Auth, Notifications, Data Pipeline</small>
+                        </div>
+                        <div class="example-item">
+                            <strong>Examples 16-20:</strong> Enterprise Solutions<br>
+                            <small>Search Engine, Blockchain, ML Server, Microservices, Complete App</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="footer">
+                    <p>🌟 <strong>Open Source Educational Resource</strong> | Built with ❤️ for the Rust and MCP Community</p>
+                    <p>Updated automatically from the latest codebase</p>
+                </div>
             </div>
         </body>
         </html>
         EOF
+        
+                 # Convert README to HTML if pandoc is available
+         if command -v pandoc >/dev/null 2>&1; then
+           echo "Converting README to HTML..."
+           pandoc README.md -o target/doc/website/readme.html --standalone --css=../style.css 2>/dev/null || cp README.md target/doc/website/
+         else
+           echo "Pandoc not available, copying README as-is"
+           cp README.md target/doc/website/
+         fi
+    
+    # Step 5.5: Create tutorial HTML pages and navigation
+    - name: Create tutorial pages
+      run: |
+        echo "Creating tutorial HTML pages..."
+        
+        # Create a simple HTML template for tutorials
+        cat > target/doc/tutorials/template.html << 'EOF'
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>MCP Rust Tutorial</title>
+            <style>
+                body { 
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+                    line-height: 1.6; 
+                    color: #333; 
+                    max-width: 1000px; 
+                    margin: 0 auto; 
+                    padding: 20px;
+                    background: #fff;
+                }
+                .nav { 
+                    background: #667eea; 
+                    color: white; 
+                    padding: 15px; 
+                    border-radius: 8px; 
+                    margin-bottom: 30px; 
+                    text-align: center;
+                }
+                .nav a { color: white; text-decoration: none; margin: 0 15px; }
+                .nav a:hover { text-decoration: underline; }
+                h1, h2, h3 { color: #667eea; }
+                pre { 
+                    background: #f4f4f4; 
+                    padding: 15px; 
+                    border-radius: 8px; 
+                    overflow-x: auto; 
+                    border-left: 4px solid #667eea;
+                }
+                code { 
+                    background: #f4f4f4; 
+                    padding: 2px 6px; 
+                    border-radius: 4px; 
+                    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+                }
+                .example { 
+                    background: #f8f9fa; 
+                    border: 1px solid #dee2e6; 
+                    border-radius: 8px; 
+                    padding: 20px; 
+                    margin: 20px 0;
+                }
+                .toc { 
+                    background: #e9ecef; 
+                    padding: 20px; 
+                    border-radius: 8px; 
+                    margin: 20px 0;
+                }
+                .toc ul { list-style-type: none; padding-left: 20px; }
+                .toc > ul { padding-left: 0; }
+                .toc a { color: #667eea; text-decoration: none; }
+                .toc a:hover { text-decoration: underline; }
+            </style>
+        </head>
+        <body>
+            <div class="nav">
+                <a href="../index.html">🏠 Home</a>
+                <a href="../mcp_rust_examples/index.html">📚 API Docs</a>
+                <a href="mcp_rust_tutorial.html">📖 Tutorial</a>
+                <a href="../website/readme.html">📄 README</a>
+            </div>
+        EOF
+        
+        # If pandoc is available, convert markdown to HTML
+        if command -v pandoc >/dev/null 2>&1; then
+          echo "Converting tutorial markdown to HTML with pandoc..."
+          if [ -f "mcp_rust_tutorial.md" ]; then
+            pandoc mcp_rust_tutorial.md -o target/doc/tutorials/mcp_rust_tutorial.html \
+              --standalone \
+              --toc \
+              --toc-depth=3 \
+              --css=tutorial-style.css \
+              --template=target/doc/tutorials/template.html 2>/dev/null || {
+              echo "Pandoc conversion failed, creating simple HTML wrapper..."
+              cat target/doc/tutorials/template.html > target/doc/tutorials/mcp_rust_tutorial.html
+              echo '<div class="tutorial-content">' >> target/doc/tutorials/mcp_rust_tutorial.html
+              echo '<pre>' >> target/doc/tutorials/mcp_rust_tutorial.html
+              cat mcp_rust_tutorial.md >> target/doc/tutorials/mcp_rust_tutorial.html
+              echo '</pre>' >> target/doc/tutorials/mcp_rust_tutorial.html
+              echo '</div></body></html>' >> target/doc/tutorials/mcp_rust_tutorial.html
+            }
+          else
+            echo "Tutorial markdown not found, creating placeholder..."
+            cat target/doc/tutorials/template.html > target/doc/tutorials/mcp_rust_tutorial.html
+            echo '<h1>Tutorial Coming Soon</h1><p>The tutorial content will be available soon.</p></body></html>' >> target/doc/tutorials/mcp_rust_tutorial.html
+          fi
+        else
+          echo "Creating simple HTML wrapper for tutorial..."
+          cat target/doc/tutorials/template.html > target/doc/tutorials/mcp_rust_tutorial.html
+          echo '<div class="tutorial-content">' >> target/doc/tutorials/mcp_rust_tutorial.html
+          if [ -f "mcp_rust_tutorial.md" ]; then
+            echo '<pre>' >> target/doc/tutorials/mcp_rust_tutorial.html
+            cat mcp_rust_tutorial.md >> target/doc/tutorials/mcp_rust_tutorial.html
+            echo '</pre>' >> target/doc/tutorials/mcp_rust_tutorial.html
+          else
+            echo '<h1>Tutorial Coming Soon</h1><p>The tutorial content will be available soon.</p>' >> target/doc/tutorials/mcp_rust_tutorial.html
+          fi
+          echo '</div></body></html>' >> target/doc/tutorials/mcp_rust_tutorial.html
+        fi
+        
+        # Create a CSS file for tutorials
+        cat > target/doc/tutorials/tutorial-style.css << 'EOF'
+        /* Additional styles for tutorial content */
+        .tutorial-content {
+            max-width: none;
+        }
+        .highlight {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .note {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .warning {
+            background-color: #f8d7da;
+            border: 1px solid #f1b2b7;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        EOF
+    
+    # Step 5.6: Create additional navigation and utility pages
+    - name: Create site navigation and utilities
+      run: |
+        echo "Creating additional site pages..."
+        
+        # Create a sitemap for better navigation
+        cat > target/doc/sitemap.html << 'EOF'
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Site Map - MCP Rust Examples</title>
+            <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+                h1, h2 { color: #667eea; }
+                ul { list-style-type: none; padding-left: 20px; }
+                li { margin: 10px 0; }
+                a { color: #667eea; text-decoration: none; }
+                a:hover { text-decoration: underline; }
+            </style>
+        </head>
+        <body>
+            <h1>🗺️ Site Map</h1>
+            <ul>
+                <li><a href="index.html">🏠 Home</a></li>
+                <li><a href="mcp_rust_examples/index.html">📚 API Documentation</a></li>
+                <li><a href="tutorials/mcp_rust_tutorial.html">📖 Complete Tutorial</a></li>
+                <li><a href="website/readme.html">📄 Project README</a></li>
+            </ul>
+            
+            <h2>📁 Examples by Category</h2>
+            <ul>
+                <li><strong>Basic (1-5):</strong> Fundamentals and Core Concepts</li>
+                <li><strong>Intermediate (6-10):</strong> Configuration, I/O, and Data</li>
+                <li><strong>Advanced (11-15):</strong> Auth, Monitoring, and Async</li>
+                <li><strong>Enterprise (16-20):</strong> Search, Blockchain, ML, and Production</li>
+            </ul>
+        </body>
+        </html>
+        EOF
+        
+                 # Create a robots.txt for search engines
+         cat > target/doc/robots.txt << 'EOF'
+         User-agent: *
+         Allow: /
+         
+         Sitemap: https://rustsandbox.github.io/MCP-Development-with-Rust/sitemap.html
+         EOF
+         
+         # Create a custom 404 page
+         cat > target/doc/404.html << 'EOF'
+         <!DOCTYPE html>
+         <html lang="en">
+         <head>
+             <meta charset="UTF-8">
+             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+             <title>Page Not Found - MCP Rust Examples</title>
+             <style>
+                 body { 
+                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+                     text-align: center; 
+                     padding: 50px; 
+                     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                     color: white;
+                     min-height: 100vh;
+                     margin: 0;
+                     display: flex;
+                     flex-direction: column;
+                     justify-content: center;
+                     align-items: center;
+                 }
+                 .container { background: rgba(255,255,255,0.1); padding: 40px; border-radius: 12px; backdrop-filter: blur(10px); }
+                 h1 { font-size: 4rem; margin-bottom: 20px; }
+                 p { font-size: 1.2rem; margin-bottom: 30px; }
+                 .btn { 
+                     display: inline-block; 
+                     padding: 12px 24px; 
+                     background: rgba(255,255,255,0.2); 
+                     color: white; 
+                     text-decoration: none; 
+                     border-radius: 6px; 
+                     transition: background 0.3s ease;
+                     border: 2px solid white;
+                 }
+                 .btn:hover { background: rgba(255,255,255,0.3); }
+             </style>
+         </head>
+         <body>
+             <div class="container">
+                 <h1>🦀 404</h1>
+                 <p>Oops! The page you're looking for doesn't exist.</p>
+                 <p>But don't worry, there's plenty of great content to explore!</p>
+                 <a href="/MCP-Development-with-Rust/" class="btn">🏠 Go Home</a>
+             </div>
+         </body>
+         </html>
+         EOF
+         
+         # Create a CNAME file for custom domain (if needed)
+         # Uncomment the line below if you have a custom domain
+         # echo "your-domain.com" > target/doc/CNAME
+         
+         echo "✅ Site structure created successfully"
     
     # Step 6: Verify documentation structure
     - name: Verify documentation
       run: |
-        echo "Verifying documentation structure..."
+        echo "Verifying comprehensive documentation structure..."
         
         # Check if main documentation was generated
         if [ ! -d "target/doc" ]; then
@@ -107,11 +486,59 @@ jobs:
           exit 1
         fi
         
-        # List generated documentation
-        echo "Generated documentation:"
-        find target/doc -name "*.html" | head -10
+        # Verify main site structure
+        echo "🔍 Checking main site files..."
+        required_files=(
+          "target/doc/index.html"
+          "target/doc/404.html"
+          "target/doc/sitemap.html"
+          "target/doc/robots.txt"
+        )
         
-        echo "✅ Documentation verification complete"
+        for file in "${required_files[@]}"; do
+          if [ -f "$file" ]; then
+            echo "✅ $file exists"
+          else
+            echo "❌ $file missing"
+            exit 1
+          fi
+        done
+        
+        # Check directory structure
+        echo "🔍 Checking directory structure..."
+        required_dirs=(
+          "target/doc/website"
+          "target/doc/tutorials"
+        )
+        
+        for dir in "${required_dirs[@]}"; do
+          if [ -d "$dir" ]; then
+            echo "✅ $dir exists"
+          else
+            echo "❌ $dir missing"
+            exit 1
+          fi
+        done
+        
+        # Check if Rust API documentation was generated
+        if [ -d "target/doc/mcp_rust_examples" ]; then
+          echo "✅ Rust API documentation generated"
+        else
+          echo "⚠️ Rust API documentation not found (may be normal)"
+        fi
+        
+        # Count HTML files for statistics
+        html_count=$(find target/doc -name "*.html" | wc -l)
+        echo "📊 Statistics:"
+        echo "   - Total HTML files: $html_count"
+        echo "   - Site structure: Complete"
+        echo "   - Ready for GitHub Pages: ✅"
+        
+        # Display site structure
+        echo "🌐 Site structure overview:"
+        tree target/doc -L 3 2>/dev/null || find target/doc -type d | head -10
+        
+        echo "✅ Documentation verification complete - Ready for deployment!"
     
     # Step 7: Upload documentation artifacts
     - name: Upload documentation artifacts
