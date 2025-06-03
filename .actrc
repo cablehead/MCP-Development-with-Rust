@@ -10,8 +10,8 @@
 # Bind working directory instead of copying (faster for development)
 --bind
 
-# Cache action downloads for faster subsequent runs
---action-cache-path ~/.cache/act
+# Don't reuse actions to avoid caching issues
+--action-offline-mode=false
 
 # Set default actor name
 --actor nektos/act

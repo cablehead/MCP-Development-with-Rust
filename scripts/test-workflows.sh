@@ -50,13 +50,18 @@ run_job() {
     local description="$2"
     
     print_status "Testing: $description"
-    echo "Command: act push --job $job_name --container-architecture linux/amd64"
+    echo "Command: act push --job $job_name"
     echo ""
     
-    if act push --job "$job_name" --container-architecture linux/amd64; then
+    # Try running the job
+    if act push --job "$job_name"; then
         print_success "$description completed successfully!"
     else
-        print_error "$description failed!"
+        print_warning "$description failed with act. This might be due to action caching issues."
+        print_status "Common solutions:"
+        echo "  1. Clear act cache: rm -rf ~/.cache/act"
+        echo "  2. Use GitHub Actions directly for full testing"
+        echo "  3. Use act with --action-offline-mode flag"
         return 1
     fi
     echo ""
