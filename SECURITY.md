@@ -233,10 +233,7 @@ impl Default for Config {
 - **Email**: security@remolab.ai
 - **GitHub**: [@hghalebi](https://github.com/hghalebi)
 
-**Business Contact:**
-- **Company**: Remolab - Advanced Technology Solutions
-- **Website**: [remolab.ai](https://remolab.ai)
-- **General**: contact@remolab.ai
+
 
 ## 🏆 Security Acknowledgments
 
