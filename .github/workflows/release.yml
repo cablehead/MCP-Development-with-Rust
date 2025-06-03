@@ -235,14 +235,16 @@ jobs:
     - name: Verify package
       run: |
         echo "Verifying package for crates.io publishing..."
-        cargo package --verbose
-        cargo package --list
+        echo "Note: Using examples-only feature to avoid git dependencies"
+        cargo package --features examples-only --no-default-features --verbose
+        cargo package --features examples-only --no-default-features --list
     
     # Step 5: Publish to crates.io
     - name: Publish to crates.io
       run: |
         echo "Publishing MCP Rust Examples to crates.io..."
-        cargo publish --token ${{ secrets.CARGO_REGISTRY_TOKEN }} --verbose
+        echo "Using examples-only feature for crates.io compatibility"
+        cargo publish --features examples-only --no-default-features --token ${{ secrets.CARGO_REGISTRY_TOKEN }} --verbose
       env:
         CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 

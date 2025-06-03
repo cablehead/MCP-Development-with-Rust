@@ -68,7 +68,7 @@ jobs:
     - name: Test package with examples-only feature
       run: |
         echo "Testing package with examples-only feature (no git dependencies)..."
-        cargo package --features examples-only --verbose
+        cargo package --features examples-only --no-default-features --verbose
         echo "✅ Package builds successfully with examples-only feature"
     
     # Step 6: Test packaging with default features (including MCP)
@@ -88,9 +88,9 @@ jobs:
       run: |
         echo "Testing example binary compilation..."
         # Test a few key examples
-        cargo build --features examples-only --bin example_01_hello_world
-        cargo build --features examples-only --bin example_02_calculator
-        cargo build --features examples-only --bin example_09_database
+        cargo build --features examples-only --no-default-features --bin example_01_hello_world
+        cargo build --features examples-only --no-default-features --bin example_02_calculator
+        cargo build --features examples-only --no-default-features --bin example_09_database
         echo "✅ Key examples compile successfully"
     
     # Step 8: Generate package information

@@ -95,11 +95,14 @@ path = "src/examples/example_20_enterprise_server.rs"
 
 [dependencies]
 # Core MCP SDK - using development branch for latest features
-# Note: Made optional for crates.io publishing compatibility
+# Note: Optional git dependency for MCP functionality
 rmcp = { git = "https://github.com/modelcontextprotocol/rust-sdk", branch = "main", features = [
     "server",
     "client",
 ], optional = true }
+
+# Alternative crates.io version (when available)
+# rmcp = { version = "0.1", features = ["server", "client"], optional = true }
 
 # Essential async runtime
 tokio = { version = "1.0", features = ["full"] }
