@@ -1,0 +1,1 @@
+/Users/hamzeghalebi/projects/learning/rust/llms/mcps/tutorial/target/x86_64-unknown-linux-gnu/release/example_07_file_operations: /Users/hamzeghalebi/projects/learning/rust/llms/mcps/tutorial/src/examples/example_07_file_operations.rs

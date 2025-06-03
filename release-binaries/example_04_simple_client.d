@@ -1,0 +1,1 @@
+/Users/hamzeghalebi/projects/learning/rust/llms/mcps/tutorial/target/x86_64-unknown-linux-gnu/release/example_04_simple_client: /Users/hamzeghalebi/projects/learning/rust/llms/mcps/tutorial/src/examples/example_04_simple_client.rs

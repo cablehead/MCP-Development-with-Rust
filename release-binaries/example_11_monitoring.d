@@ -1,0 +1,1 @@
+/Users/hamzeghalebi/projects/learning/rust/llms/mcps/tutorial/target/x86_64-unknown-linux-gnu/release/example_11_monitoring: /Users/hamzeghalebi/projects/learning/rust/llms/mcps/tutorial/src/examples/example_11_monitoring.rs

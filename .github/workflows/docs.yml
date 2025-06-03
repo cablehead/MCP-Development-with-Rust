@@ -491,60 +491,59 @@ jobs:
             <div class="container">
         EOF
         
-        # Convert markdown to beautiful HTML using pandoc
-        if [ -f "mcp_rust_tutorial.md" ]; then
-          echo "Converting tutorial markdown to beautiful HTML..."
-          pandoc mcp_rust_tutorial.md \
-            -f markdown+smart+pipe_tables+fenced_code_blocks+definition_lists \
-            -t html5 \
-            --standalone \
-            --toc \
-            --toc-depth=4 \
-            --section-divs \
-            --html-q-tags \
-            --highlight-style=github \
-            --template=target/doc/tutorials/template.html \
-            -o target/doc/tutorials/mcp_rust_tutorial.html \
-            --metadata title="MCP Rust Tutorial - Complete Learning Resource"
-          
-          # Add closing tags
-          echo '</div><div class="footer">🦀 <strong>MCP Rust Tutorial</strong> | Built with ❤️ for the Rust Community</div></body></html>' >> target/doc/tutorials/mcp_rust_tutorial.html
-          
-          echo "✅ Beautiful tutorial HTML created successfully!"
-        else
-          echo "⚠️ Tutorial markdown not found, creating placeholder..."
-          cat target/doc/tutorials/template.html > target/doc/tutorials/mcp_rust_tutorial.html
-          echo '<h1>🚧 Tutorial Coming Soon</h1><p>The comprehensive MCP Rust tutorial will be available soon.</p></div></body></html>' >> target/doc/tutorials/mcp_rust_tutorial.html
-        fi
+                          # Convert markdown to beautiful HTML using pandoc
+         if [ -f "mcp_rust_tutorial.md" ]; then
+           echo "Converting tutorial markdown to beautiful HTML..."
+           
+           # Try pandoc with advanced features first
+           if pandoc mcp_rust_tutorial.md \
+             -f markdown+smart+pipe_tables+fenced_code_blocks+definition_lists \
+             -t html5 \
+             --standalone \
+             --toc \
+             --toc-depth=4 \
+             --section-divs \
+             --html-q-tags \
+             --highlight-style=tango \
+             --template=target/doc/tutorials/template.html \
+             -o target/doc/tutorials/mcp_rust_tutorial.html \
+             --metadata title="MCP Rust Tutorial - Complete Learning Resource" 2>/dev/null; then
+             
+             # Add closing tags
+             echo '</div><div class="footer">🦀 <strong>MCP Rust Tutorial</strong> | Built with ❤️ for the Rust Community</div></body></html>' >> target/doc/tutorials/mcp_rust_tutorial.html
+             echo "✅ Beautiful tutorial HTML created successfully with pandoc!"
+           
+           else
+             echo "⚠️ Pandoc failed, trying simpler conversion..."
+             # Fallback to basic pandoc conversion
+             if pandoc mcp_rust_tutorial.md \
+               -f markdown \
+               -t html5 \
+               --standalone \
+               --toc \
+               --template=target/doc/tutorials/template.html \
+               -o target/doc/tutorials/mcp_rust_tutorial.html 2>/dev/null; then
+               
+               echo '</div><div class="footer">🦀 <strong>MCP Rust Tutorial</strong> | Built with ❤️ for the Rust Community</div></body></html>' >> target/doc/tutorials/mcp_rust_tutorial.html
+               echo "✅ Tutorial HTML created with basic pandoc conversion!"
+             
+             else
+               echo "⚠️ Pandoc conversion failed, creating manual HTML..."
+               # Manual HTML creation as ultimate fallback
+               cat target/doc/tutorials/template.html > target/doc/tutorials/mcp_rust_tutorial.html
+               # Use a simple Python one-liner for markdown conversion
+               python3 -c "import markdown; print(markdown.markdown(open('mcp_rust_tutorial.md').read(), extensions=['toc', 'codehilite', 'tables']))" >> target/doc/tutorials/mcp_rust_tutorial.html
+               echo '</div><div class="footer">🦀 <strong>MCP Rust Tutorial</strong> | Built with ❤️ for the Rust Community</div></body></html>' >> target/doc/tutorials/mcp_rust_tutorial.html
+               echo "✅ Tutorial HTML created with Python markdown!"
+             fi
+           fi
+         else
+           echo "⚠️ Tutorial markdown not found, creating placeholder..."
+           cat target/doc/tutorials/template.html > target/doc/tutorials/mcp_rust_tutorial.html
+           echo '<h1>🚧 Tutorial Coming Soon</h1><p>The comprehensive MCP Rust tutorial will be available soon.</p></div></body></html>' >> target/doc/tutorials/mcp_rust_tutorial.html
+         fi
         
-        # Create a CSS file for tutorials
-        cat > target/doc/tutorials/tutorial-style.css << 'EOF'
-        /* Additional styles for tutorial content */
-        .tutorial-content {
-            max-width: none;
-        }
-        .highlight {
-            background-color: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 4px;
-            padding: 15px;
-            margin: 20px 0;
-        }
-        .note {
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
-            border-radius: 4px;
-            padding: 15px;
-            margin: 20px 0;
-        }
-        .warning {
-            background-color: #f8d7da;
-            border: 1px solid #f1b2b7;
-            border-radius: 4px;
-            padding: 15px;
-            margin: 20px 0;
-        }
-        EOF
+
     
     # Step 5.6: Create additional navigation and utility pages
     - name: Create site navigation and utilities
