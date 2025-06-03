@@ -1,0 +1,22 @@
+# Act configuration file for MCP Rust Examples project
+# This file configures act for optimal performance on Apple M-series Macs
+
+# Use linux/amd64 architecture for compatibility
+--container-architecture linux/amd64
+
+# Use medium size runner image (good balance of features vs size)
+-P ubuntu-latest=catthehacker/ubuntu:act-latest
+
+# Bind working directory instead of copying (faster for development)
+--bind
+
+# Cache action downloads for faster subsequent runs
+--action-cache-path ~/.cache/act
+
+# Set default actor name
+--actor nektos/act
+
+# Environment variables for testing
+--env CARGO_TERM_COLOR=always
+--env RUST_BACKTRACE=1
+--env CI=true 
