@@ -123,7 +123,7 @@ jobs:
     - name: Checkout source code
       uses: actions/checkout@v4
     
-    # Step 2: Install Rust toolchain with the target architecture
+    # Step 2: Install Rust toolchain with Cargo.lock v4 support
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@1.86.0
       with:

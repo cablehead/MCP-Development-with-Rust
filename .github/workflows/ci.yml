@@ -33,8 +33,9 @@ jobs:
         rust: [1.86.0, stable, beta]
         include:
           # Add MSRV (Minimum Supported Rust Version) check on Ubuntu
+          # Cargo.lock version 4 requires Rust 1.77.0 or later
           - os: ubuntu-latest
-            rust: 1.75.0  # Updated MSRV to support Cargo.lock version 4
+            rust: 1.77.0  # MSRV that supports Cargo.lock version 4
     
     steps:
     # Step 1: Check out the source code from the repository
@@ -92,9 +93,9 @@ jobs:
     - name: Checkout source code
       uses: actions/checkout@v4
     
-    # Step 2: Install stable Rust with required components
+    # Step 2: Install Rust toolchain with Cargo.lock v4 support
     - name: Install Rust toolchain
-      uses: dtolnay/rust-toolchain@stable
+      uses: dtolnay/rust-toolchain@1.86.0
       with:
         components: rustfmt, clippy
     
@@ -135,11 +136,19 @@ jobs:
     - name: Checkout source code
       uses: actions/checkout@v4
     
-    # Step 2: Install cargo-audit for security scanning
+    # Step 2: Install Rust toolchain with Cargo.lock v4 support
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@1.86.0
+    
+    # Step 3: Setup Rust caching
+    - name: Setup Rust cache
+      uses: Swatinem/rust-cache@v2
+    
+    # Step 4: Install cargo-audit for security scanning
     - name: Install cargo-audit
       run: cargo install cargo-audit --locked
     
-    # Step 3: Run security audit on dependencies
+    # Step 5: Run security audit on dependencies
     # This checks for known security vulnerabilities in our dependencies
     # We ignore RUSTSEC-2023-0071 (RSA timing sidechannel) as it's a transitive
     # dependency through sqlx-mysql with no fix available, and poses minimal
@@ -147,7 +156,7 @@ jobs:
     - name: Run security audit
       run: cargo audit --ignore RUSTSEC-2023-0071
     
-    # Step 4: Check for vulnerabilities in our Cargo.lock file
+    # Step 6: Check for vulnerabilities in our Cargo.lock file
     - name: Check advisories
       run: cargo audit --json | jq '.vulnerabilities'
 
@@ -161,9 +170,9 @@ jobs:
     - name: Checkout source code
       uses: actions/checkout@v4
     
-    # Step 2: Install stable Rust toolchain
+    # Step 2: Install Rust toolchain with Cargo.lock v4 support
     - name: Install Rust toolchain
-      uses: dtolnay/rust-toolchain@stable
+      uses: dtolnay/rust-toolchain@1.86.0
     
     # Step 3: Setup caching
     - name: Setup Rust cache

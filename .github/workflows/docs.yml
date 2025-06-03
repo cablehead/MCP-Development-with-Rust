@@ -48,9 +48,9 @@ jobs:
     - name: Checkout source code
       uses: actions/checkout@v4
     
-    # Step 2: Install Rust toolchain
+    # Step 2: Install Rust toolchain with Cargo.lock v4 support
     - name: Install Rust toolchain
-      uses: dtolnay/rust-toolchain@stable
+      uses: dtolnay/rust-toolchain@1.86.0
     
     # Step 3: Setup Rust caching
     - name: Setup Rust cache
@@ -588,9 +588,9 @@ jobs:
     - name: Checkout source code
       uses: actions/checkout@v4
     
-    # Step 2: Install Rust toolchain
+    # Step 2: Install Rust toolchain with Cargo.lock v4 support
     - name: Install Rust toolchain
-      uses: dtolnay/rust-toolchain@stable
+      uses: dtolnay/rust-toolchain@1.86.0
     
     # Step 3: Setup Rust caching
     - name: Setup Rust cache
