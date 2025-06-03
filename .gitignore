@@ -2,3 +2,7 @@ instruction.md
 target/
 
 ~/
+# Build artifacts
+release-binaries/
+*.tar.gz
+*.zip

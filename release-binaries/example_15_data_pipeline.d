@@ -1,1 +1,0 @@
-/Users/hamzeghalebi/projects/learning/rust/llms/mcps/tutorial/target/x86_64-unknown-linux-gnu/release/example_15_data_pipeline: /Users/hamzeghalebi/projects/learning/rust/llms/mcps/tutorial/src/examples/example_15_data_pipeline.rs

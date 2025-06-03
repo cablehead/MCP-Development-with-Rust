@@ -1,1 +1,0 @@
-/Users/hamzeghalebi/projects/learning/rust/llms/mcps/tutorial/target/x86_64-unknown-linux-gnu/release/example_09_database: /Users/hamzeghalebi/projects/learning/rust/llms/mcps/tutorial/src/examples/example_09_database.rs

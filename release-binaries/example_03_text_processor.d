@@ -1,1 +1,0 @@
-/Users/hamzeghalebi/projects/learning/rust/llms/mcps/tutorial/target/x86_64-unknown-linux-gnu/release/example_03_text_processor: /Users/hamzeghalebi/projects/learning/rust/llms/mcps/tutorial/src/examples/example_03_text_processor.rs

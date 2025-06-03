@@ -1,1 +1,0 @@
-/Users/hamzeghalebi/projects/learning/rust/llms/mcps/tutorial/target/x86_64-unknown-linux-gnu/release/example_05_resource_provider: /Users/hamzeghalebi/projects/learning/rust/llms/mcps/tutorial/src/examples/example_05_resource_provider.rs
