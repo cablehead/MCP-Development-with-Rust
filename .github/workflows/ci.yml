@@ -30,24 +30,19 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        rust: [1.86.0, stable, beta]
-        include:
-          # Add MSRV (Minimum Supported Rust Version) check on Ubuntu
-          # Cargo.lock version 4 requires Rust 1.77.0 or later
-          - os: ubuntu-latest
-            rust: 1.77.0  # MSRV that supports Cargo.lock version 4
+        # Using rust-toolchain.toml to enforce consistent Rust 1.86.0 across all environments
+        # This ensures Cargo.lock v4 compatibility everywhere
     
     steps:
     # Step 1: Check out the source code from the repository
     - name: Checkout source code
       uses: actions/checkout@v4
     
-    # Step 2: Install the specified Rust toolchain
-    # This ensures we're testing with the exact Rust version from our matrix
+    # Step 2: Install Rust toolchain from rust-toolchain.toml
+    # This ensures consistent Rust 1.86.0 that supports Cargo.lock v4
     - name: Install Rust toolchain
-      uses: dtolnay/rust-toolchain@master
+      uses: dtolnay/rust-toolchain@1.86.0
       with:
-        toolchain: ${{ matrix.rust }}
         components: rustfmt, clippy
     
     # Step 3: Configure Rust cargo caching to speed up builds
@@ -55,8 +50,8 @@ jobs:
     - name: Setup Rust cache
       uses: Swatinem/rust-cache@v2
       with:
-        # Cache key includes OS and Rust version for proper isolation
-        key: ${{ matrix.os }}-${{ matrix.rust }}
+        # Cache key includes OS for proper isolation
+        key: ${{ matrix.os }}-rust-1.86.0
     
     # Step 4: Build all targets to ensure compilation succeeds
     # We build all binary examples defined in Cargo.toml

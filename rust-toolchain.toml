@@ -1,0 +1,10 @@
+[toolchain]
+# Specify the Rust version that supports Cargo.lock version 4
+# This ensures consistency across local development, CI, and deployment
+channel = "1.86.0"
+
+# Components needed for development and CI
+components = ["rustfmt", "clippy"]
+
+# Profile for faster installs in CI
+profile = "minimal"
