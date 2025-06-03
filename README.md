@@ -86,11 +86,25 @@ We've created two distinct learning paths to serve different audiences and learn
 
 ### Quick Start (Choose Your Path)
 
-**For Technical Teams:**
+**Option 1: Install from crates.io (Recommended)**
+```bash
+# Add as dependency in your Cargo.toml
+[dependencies]
+mcp_rust_examples = "0.1.0"
+
+# Or install binaries globally
+cargo install mcp_rust_examples --features examples-only
+
+# Run examples directly
+example_01_hello_world
+example_02_calculator
+```
+
+**Option 2: Clone and Build (Development)**
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd mcp-rust-tutorial
+git clone https://github.com/RustSandbox/MCP-Development-with-Rust
+cd MCP-Development-with-Rust
 
 # Run any of the 20 working examples
 cargo run --bin example_01_hello_world
@@ -101,7 +115,7 @@ cargo run --bin example_20_enterprise_server
 open mcp_rust_tutorial.md
 ```
 
-**For Learning-Oriented Approach:**
+**Option 3: Learning-Oriented Approach**
 ```bash
 # Start with the international teaching guide
 open mcp_rust_tutorial_international.md
@@ -193,6 +207,41 @@ mcp-rust-tutorial/
 
 ---
 
+## 🔧 **Feature Flags**
+
+This crate supports multiple feature configurations for different use cases:
+
+**Default Features:**
+```toml
+[dependencies]
+mcp_rust_examples = "0.1.0"  # Includes MCP SDK (development branch)
+```
+
+**Examples-Only Mode (Recommended for crates.io):**
+```toml
+[dependencies]
+mcp_rust_examples = { version = "0.1.0", features = ["examples-only"], default-features = false }
+```
+
+**Available Features:**
+- `default` = `["mcp"]` - Full MCP SDK integration
+- `mcp` - Enable MCP protocol support (requires git dependency)
+- `examples-only` - Just the educational code and examples
+
+**Installation Commands:**
+```bash
+# With full MCP support (from git)
+cargo install mcp_rust_examples
+
+# Examples only (from crates.io)
+cargo install mcp_rust_examples --features examples-only --no-default-features
+
+# For development
+git clone https://github.com/RustSandbox/MCP-Development-with-Rust
+cd MCP-Development-with-Rust
+cargo build --all
+```
+
 ## 🛠️ **Development Commands**
 
 We provide a comprehensive development environment with 50+ commands via [just](https://github.com/casey/just):
@@ -265,6 +314,39 @@ With over 20 years of experience teaching Rust to international audiences, this 
 - Email: hamze@remolab.ai
 
 ---
+
+## 📦 **Publishing & Releases**
+
+This project uses automated publishing to crates.io via GitHub Actions:
+
+**Automated Release Process:**
+1. **Tag a Release**: `git tag v0.1.0 && git push origin v0.1.0`
+2. **GitHub Actions Triggers**: Automatically builds and tests
+3. **Multi-Platform Binaries**: Creates binaries for Linux, macOS, Windows
+4. **Crates.io Publishing**: Publishes to crates.io with `examples-only` feature
+5. **GitHub Release**: Creates release with binaries and checksums
+
+**Release Workflow:**
+- ✅ **CI/CD Pipeline**: Full testing and building
+- ✅ **Cross-Platform Builds**: Linux x64, macOS x64/ARM64, Windows x64
+- ✅ **Automatic Publishing**: Publishes to crates.io on tag
+- ✅ **Binary Distribution**: Ready-to-use binaries for all platforms
+- ✅ **Checksums**: SHA256 verification for security
+
+**Version Management:**
+```bash
+# Create a new release
+git tag v0.2.0
+git push origin v0.2.0
+
+# The workflow automatically:
+# 1. Builds binaries for all platforms
+# 2. Publishes to crates.io
+# 3. Creates GitHub release with assets
+# 4. Generates checksums for verification
+```
+
+**Crates.io Badge:** [![Crates.io](https://img.shields.io/crates/v/mcp_rust_examples)](https://crates.io/crates/mcp_rust_examples)
 
 ## 🤝 **Contributing**
 
